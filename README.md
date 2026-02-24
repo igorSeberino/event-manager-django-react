@@ -140,4 +140,4 @@ O projeto será desenvolvido individualmente, seguindo as etapas:
 
 ## 👨‍💻 Autor
 
-Seu Nome Aqui
+Igor Thiago Seberino
