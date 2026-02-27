@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     # Apps de terceiros
     "rest_framework",
     "corsheaders",
+    # Apps locais
+    "accounts",
+    "events",
+    "registrations",
 ]
 
 MIDDLEWARE = [
