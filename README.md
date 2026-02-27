@@ -99,7 +99,27 @@ O frontend será responsável pela interface e o backend pelas regras de negóci
 
 ---
 
-## 👤 Organização do Desenvolvimento
+## 📊 Modelo de Dados
+
+O banco de dados foi modelado seguindo um padrão relacional, com entidades principais para gerenciar usuários, eventos e inscrições:
+
+### Diagrama Entidade-Relacionamento (DER)
+
+![Diagrama ER - Modelagem do Banco de Dados](./docs/database/erd.png)
+
+### Entidades Principais
+
+- **Users**: Armazena informações de usuários com diferentes roles (ADMIN, ORGANIZER, USER)
+- **Events**: Registro de eventos com informações como título, data, local, capacidade e status de aprovação
+- **Registrations**: Relacionamento entre usuários e eventos, registrando inscrições e presença
+
+Os arquivos de modelagem estão em `./docs/database/`:
+- `erd.puml` - Diagrama em formato PlantUML (edição)
+- `erd.png` - Imagem do diagrama
+
+---
+
+## 📋 Organização do Desenvolvimento
 
 O projeto será desenvolvido individualmente, seguindo as etapas:
 

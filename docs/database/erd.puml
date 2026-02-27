@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #F4F6F7
+  BorderColor #2C3E50
+  FontSize 12
+}
+
+entity "Users" as users {
+  + id : UUID <<PK>>
+  --
+  name : varchar
+  email : varchar <<unique>>
+  password : varchar
+  role : ADMIN | ORGANIZER | USER
+  created_at : timestamp
+}
+
+entity "Events" as events {
+  + id : UUID <<PK>>
+  --
+  title : varchar
+  description : text
+  location : varchar
+  event_date : timestamp
+  capacity : int
+  status : PENDING | APPROVED | REJECTED
+  organizer_id : int <<FK>>
+}
+
+entity "Registrations" as registrations {
+  + id : UUID <<PK>>
+  --
+  user_id : int <<FK>>
+  event_id : int <<FK>>
+  check_in : boolean
+  registered_at : timestamp
+}
+
+users ||--o{ events 
+users ||--o{ registrations 
+events ||--o{ registrations 
+
+@enduml
