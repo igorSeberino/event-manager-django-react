@@ -1,0 +1,109 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+
+title [Nível 1] Contexto do Sistema - Gerenciamento de Eventos Acadêmicos
+
+Person(admin, "Administrador", "Gerencia o sistema, aprova eventos e gerencia usuários")
+Person(organizer, "Organizador", "Cria e gerencia eventos acadêmicos como palestras, workshops e minicursos")
+Person(participant, "Participante", "Visualiza eventos disponíveis, realiza inscrição e registra presença")
+
+System(eventSystem, "Sistema de Gerenciamento de Eventos Acadêmicos", "Centraliza o controle de eventos acadêmicos e inscrições em uma única plataforma web. Permite cadastro de usuários, criação de eventos, inscrição de participantes e controle de presença.")
+
+Rel(admin, eventSystem, "Gerencia usuários, aprova/rejeita eventos")
+Rel(organizer, eventSystem, "Cria, edita, exclui eventos e visualiza participantes inscritos")
+Rel(participant, eventSystem, "Consulta eventos, realiza inscrição e check-in")
+@enduml
+
+@startuml C4_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+title [Nível 2] Diagrama de Contêineres - Gerenciamento de Eventos Acadêmicos
+
+Person(admin, "Administrador", "Gerencia o sistema e aprova eventos")
+Person(organizer, "Organizador", "Cria e gerencia eventos acadêmicos")
+Person(participant, "Participante", "Visualiza eventos e se inscreve")
+
+System_Boundary(eventSystem, "Sistema de Gerenciamento de Eventos Acadêmicos") {
+    Container(spa, "Aplicação Frontend", "React, Tailwind CSS", "Interface responsiva do usuário. Consome a API REST para exibir dados e realizar operações.")
+    Container(api, "API Backend", "Django, Django REST Framework, Python", "Fornece a API REST com regras de negócio, autenticação, gerenciamento de eventos e inscrições.")
+    ContainerDb(db, "Banco de Dados", "MySQL", "Armazena dados de usuários, eventos e inscrições. Senhas armazenadas com criptografia.")
+}
+
+Rel(admin, spa, "Acessa via navegador", "HTTPS")
+Rel(organizer, spa, "Acessa via navegador", "HTTPS")
+Rel(participant, spa, "Acessa via navegador", "HTTPS")
+Rel(spa, api, "Consome API", "HTTP/JSON")
+Rel(api, db, "Lê e escreve dados", "SQL / Django ORM")
+@enduml
+
+@startuml C4_Components_Backend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+title [Nível 3] Diagrama de Componentes - Backend API (Django)
+
+Container_Boundary(api, "API Backend - Django REST Framework") {
+    Component(accountsViews, "Accounts Views", "Django REST Views", "Endpoints de cadastro de usuários, login, logout e gerenciamento de perfil")
+    Component(accountsSerializers, "Accounts Serializers", "DRF Serializers", "Serialização e validação dos dados de usuário")
+    Component(accountsModels, "Accounts Models", "Django Models", "Modelo User com roles: ADMIN, ORGANIZER, USER. Autenticação por email.")
+    Component(eventsViews, "Events Views", "Django REST Views", "Endpoints de criação, edição, exclusão e listagem de eventos. Aprovação/rejeição por admin.")
+    Component(eventsModels, "Events Models", "Django Models", "Modelo Event com título, descrição, local, data, capacidade e status (PENDING, APPROVED, REJECTED)")
+    Component(registrationsViews, "Registrations Views", "Django REST Views", "Endpoints de inscrição em eventos, visualização de participantes e controle de presença (check-in)")
+    Component(registrationsModels, "Registrations Models", "Django Models", "Modelo Registration com relacionamento user-event, flag de check-in e timestamp")
+    Component(urlRouter, "URL Router", "Django URLs", "Roteamento das requisições para os respectivos views via /api/")
+    Component(authMiddleware, "Autenticação", "Django Auth / DRF Auth", "Gerenciamento de autenticação (login/logout), criptografia de senhas e permissões por role")
+}
+
+ContainerDb(db, "Banco de Dados", "MySQL", "Armazena usuários, eventos e inscrições")
+Container(spa, "Frontend SPA", "React", "Interface do usuário")
+
+Rel(spa, urlRouter, "Requisições HTTP", "JSON/REST")
+Rel(urlRouter, accountsViews, "Roteia /api/accounts/")
+Rel(urlRouter, eventsViews, "Roteia /api/events/")
+Rel(urlRouter, registrationsViews, "Roteia /api/registrations/")
+Rel(accountsViews, authMiddleware, "Autentica usuários")
+Rel(eventsViews, authMiddleware, "Verifica permissões")
+Rel(registrationsViews, authMiddleware, "Verifica permissões")
+Rel(accountsViews, accountsSerializers, "Serializa/valida dados")
+Rel(accountsSerializers, accountsModels, "Acessa modelo User")
+Rel(eventsViews, eventsModels, "Acessa modelo Event")
+Rel(registrationsViews, registrationsModels, "Acessa modelo Registration")
+Rel(accountsModels, db, "Lê/escreve", "Django ORM")
+Rel(eventsModels, db, "Lê/escreve", "Django ORM")
+Rel(registrationsModels, db, "Lê/escreve", "Django ORM")
+@enduml
+
+@startuml C4_Components_Frontend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+title [Nível 3] Diagrama de Componentes - Frontend SPA (React)
+
+Container_Boundary(spa, "Frontend SPA - React + Tailwind CSS") {
+    Component(authPages, "Páginas de Autenticação", "React Components", "Telas de login, cadastro de usuários e logout")
+    Component(eventPages, "Páginas de Eventos", "React Components", "Listagem de eventos disponíveis, criação, edição e exclusão de eventos")
+    Component(registrationPages, "Páginas de Inscrições", "React Components", "Inscrição em eventos, visualização de participantes e controle de presença")
+    Component(apiService, "API Service", "JavaScript", "Camada de comunicação com a API REST do backend. Gerencia requisições HTTP e tratamento de respostas.")
+    Component(authContext, "Auth Context", "React", "Gerenciamento do estado de autenticação do usuário (role, sessão)")
+    Component(router, "Router", "React", "Navegação entre páginas e proteção de rotas por autenticação/role")
+}
+
+Container(api, "API Backend", "Django REST Framework", "API REST")
+
+Rel(router, authPages, "Roteia para")
+Rel(router, eventPages, "Roteia para")
+Rel(router, registrationPages, "Roteia para")
+Rel(authPages, apiService, "Usa para login/cadastro")
+Rel(eventPages, apiService, "Usa para CRUD de eventos")
+Rel(registrationPages, apiService, "Usa para inscrições/check-in")
+Rel(authPages, authContext, "Atualiza estado de autenticação")
+Rel(eventPages, authContext, "Verifica permissões do usuário")
+Rel(registrationPages, authContext, "Verifica permissões do usuário")
+Rel(apiService, api, "Consome API REST", "HTTP/JSON")
+@enduml
