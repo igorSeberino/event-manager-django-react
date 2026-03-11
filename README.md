@@ -83,19 +83,26 @@ Framework CSS utilitário para criação de interfaces responsivas de forma ráp
 
 ## 🏗️ Arquitetura
 
-O sistema seguirá uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados.
+O sistema segue uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados. A documentação arquitetural utiliza o **modelo C4** para representar o sistema em diferentes níveis de abstração.
 
-Fluxo geral:
+Os arquivos de modelagem estão em `./docs/architecture/`:
+- `c4-model.puml` - Diagramas C4 em formato PlantUML (edição)
 
+### Nível 1 — Contexto do Sistema
 
-Frontend (React + Tailwind)
-↓ HTTP / JSON
-Backend (Django API)
-↓
-Banco de Dados
+![Diagrama C4 - Contexto do Sistema](./docs/architecture/c4-context.png)
 
+### Nível 2 — Diagrama de Contêineres
 
-O frontend será responsável pela interface e o backend pelas regras de negócio e persistência de dados.
+![Diagrama C4 - Contêineres](./docs/architecture/c4-containers.png)
+
+### Nível 3 — Componentes do Backend (Django)
+
+![Diagrama C4 - Componentes do Backend](./docs/architecture/c4-components-backend.png)
+
+### Nível 3 — Componentes do Frontend (React)
+
+![Diagrama C4 - Componentes do Frontend](./docs/architecture/c4-components-frontend.png)
 
 ---
 
