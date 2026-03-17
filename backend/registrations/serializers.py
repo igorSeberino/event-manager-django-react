@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from rest_framework import serializers
 from .models import Registration
 
@@ -16,3 +18,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "O usuário já está registrado para este evento."
             )
         return data
+    
+    def validate_event(self, value):
+        if value.event_date < timezone.now():
+            raise serializers.ValidationError("Não é possível se registrar para um evento que já ocorreu.")
+        elif value.capacity <= value.registrations.count():
+            raise serializers.ValidationError("A capacidade do evento foi atingida.")
+        return value
