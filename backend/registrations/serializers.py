@@ -24,4 +24,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Não é possível se registrar para um evento que já ocorreu.")
         elif value.capacity <= value.registrations.count():
             raise serializers.ValidationError("A capacidade do evento foi atingida.")
+        elif value.status != "APPROVED":
+            raise serializers.ValidationError("O evento não está ativo para registro.")
         return value
