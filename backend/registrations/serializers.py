@@ -10,14 +10,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "registered_at", "user"]
 
-    def validate(self, data):
-        user = data.get("user")
-        event = data.get("event")
+    def create(self, validated_data):
+        user = self.context["request"].user
+        event = validated_data["event"]
         if Registration.objects.filter(user=user, event=event).exists():
             raise serializers.ValidationError(
                 "O usuário já está registrado para este evento."
             )
-        return data
+        return super().create({**validated_data, "user": user})
 
     def validate_event(self, value):
         if value.event_date < timezone.now():
