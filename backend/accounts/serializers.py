@@ -46,3 +46,10 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    
+    def validate_role(self, value):
+        request = self.context.get('request')
+        if request and request.method in ['POST', 'PUT', 'PATCH']:
+            if request.user.role != User.Role.ADMIN:
+                raise serializers.ValidationError("Apenas administradores podem definir ou alterar o papel do usuário.")
+        return value
