@@ -8,7 +8,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
         fields = "__all__"
-        read_only_fields = ["id", "registered_at"]
+        read_only_fields = ["id", "registered_at", "user"]
 
     def validate(self, data):
         user = data.get("user")
@@ -18,11 +18,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "O usuário já está registrado para este evento."
             )
         return data
-    
+
     def validate_event(self, value):
         if value.event_date < timezone.now():
-            raise serializers.ValidationError("Não é possível se registrar para um evento que já ocorreu.")
-        elif value.capacity <= value.registrations.count():
+            raise serializers.ValidationError(
+                "Não é possível se registrar para um evento que já ocorreu."
+            )
+        elif value.capacity <= value.registration_set.count():
             raise serializers.ValidationError("A capacidade do evento foi atingida.")
         elif value.status != "APPROVED":
             raise serializers.ValidationError("O evento não está ativo para registro.")
