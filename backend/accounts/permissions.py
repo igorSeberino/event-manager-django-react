@@ -1,14 +1,14 @@
 from rest_framework.permissions import BasePermission
 
-from accounts.models import User
+from .models import User
 
 
 class IsOwnerOrAdmin(BasePermission):
-    message = "Apenas o dono do registro ou administradores podem excluí-lo."
+    message = "Apenas o proprietário da conta ou administradores podem editar ou excluir esta conta."
 
     def has_object_permission(self, request, view, obj):
         if request.method in ("GET", "HEAD", "OPTIONS"):
             return True
         return request.user.is_authenticated and (
-            obj.user == request.user or request.user.role == User.Role.ADMIN
+            obj == request.user or request.user.role == User.Role.ADMIN
         )
