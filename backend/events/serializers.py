@@ -18,9 +18,9 @@ class EventSerializer(serializers.ModelSerializer):
     def validate_status(self,value):
         request = self.context.get('request')
         if request:
-            if request.method == 'POST' and request.user.role != 'admin':
+            if request.method == 'POST' and request.user.role != 'ADMIN':
                 if value != "PENDING":
                     raise serializers.ValidationError("Apenas administradores podem definir o status na criação do evento.")
-            elif request.method in ['PUT', 'PATCH'] and request.user.role != 'admin':
+            elif request.method in ['PUT', 'PATCH'] and request.user.role != 'ADMIN':
                 raise serializers.ValidationError("Apenas administradores podem alterar o status do evento.")
         return value
