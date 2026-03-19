@@ -50,10 +50,13 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_role(self, value):
         request = self.context.get("request")
         if request:
-            if request.method in ["PUT", "PATCH"] and request.user.role != User.Role.ADMIN:
-                    raise serializers.ValidationError(
-                        "Apenas administradores podem definir ou alterar o papel do usuário."
-                    )
+            if (
+                request.method in ["PUT", "PATCH"]
+                and request.user.role != User.Role.ADMIN
+            ):
+                raise serializers.ValidationError(
+                    "Apenas administradores podem definir ou alterar o papel do usuário."
+                )
             elif request.method == "POST" and value != User.Role.USER:
                 raise serializers.ValidationError(
                     "O papel do usuário deve ser 'USER' ao criar uma nova conta."
