@@ -1,39 +1,79 @@
-import React, { useState } from 'react';
+function getDayAndMonth(dateString) {
+  if (!dateString) return { day: '', month: '' };
+  const [year, month, day] = dateString.split('T')[0].split('-');
+  const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+  return {
+    day: day,
+    month: months[parseInt(month, 10) - 1]
+  };
+}
+
+function formatTime(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, MapPin, Menu, X, ChevronRight, GraduationCap, ArrowRight, User, ChevronLeft, Clock } from 'lucide-react';
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(23);
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // 0-11
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [selectedDate, setSelectedDate] = useState(today.getDate());
 
-  const featuredEvents = [
-    {
-      id: 1,
-      title: 'Palestra: Reconhecendo os limites do senso comum',
-      date: '25 Mar 2026',
-      time: '19:00',
-      location: 'Auditório Principal',
-      category: 'Psicologia',
-    },
-    {
-      id: 2,
-      title: 'Workshop: Ferramentas de Gestão de Projetos e Riscos',
-      date: '27 Mar 2026',
-      time: '14:00',
-      location: 'Sala 204',
-      category: 'Administração',
-    },
-    {
-      id: 3,
-      title: 'Lançamento: Diário de Bem-Estar e Autocompaixão',
-      date: '30 Mar 2026',
-      time: '10:00',
-      location: 'Auditório B',
-      category: 'Saúde Mental',
-    },
-  ];
+  const [featuredEvents, setFeaturedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
-  const eventDays = [25, 27, 30];
+  useEffect(() => {
+    fetch('http://localhost:8000/api/events/')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Erro ao buscar eventos');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setFeaturedEvents(data);
+        } else if (Array.isArray(data.results)) {
+          setFeaturedEvents(data.results);
+        } else {
+          setFeaturedEvents([]);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  function getDaysInMonth(month, year) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  function getFirstDayOfWeek(month, year) {
+    return new Date(year, month, 1).getDay();
+  }
+
+  const daysInMonth = Array.from({ length: getDaysInMonth(currentMonth, currentYear) }, (_, i) => i + 1);
+
+  const eventDaysSet = new Set(
+    featuredEvents
+      .filter(ev => {
+        if (!ev.event_date) return false;
+        const [year, month] = ev.event_date.split('T')[0].split('-');
+        return parseInt(year, 10) === currentYear && parseInt(month, 10) === currentMonth + 1;
+      })
+      .map(ev => parseInt(ev.event_date.split('T')[0].split('-')[2], 10))
+  );
 
   return (
     <div className="min-h-screen bg-[#475053] text-[#F0FBFF] font-sans relative overflow-hidden">
@@ -126,12 +166,39 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#2E94B9]/10 rounded-full filter blur-[40px]"></div>
               
               <div className="flex justify-between items-center mb-6 relative z-10">
-                <h4 className="font-bold text-lg text-[#F0FBFF]">Março 2026</h4>
+                <h4 className="font-bold text-lg text-[#F0FBFF]">
+                  {(() => {
+                    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    return `${months[currentMonth]} ${currentYear}`;
+                  })()}
+                </h4>
                 <div className="flex gap-2">
-                  <button className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10">
+                  <button
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10"
+                    onClick={() => {
+                      if (currentMonth === 0) {
+                        setCurrentMonth(11);
+                        setCurrentYear(currentYear - 1);
+                      } else {
+                        setCurrentMonth(currentMonth - 1);
+                      }
+                      setSelectedDate(1);
+                    }}
+                  >
                     <ChevronLeft size={18} className="text-[#ACDCEE]" />
                   </button>
-                  <button className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10">
+                  <button
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10"
+                    onClick={() => {
+                      if (currentMonth === 11) {
+                        setCurrentMonth(0);
+                        setCurrentYear(currentYear + 1);
+                      } else {
+                        setCurrentMonth(currentMonth + 1);
+                      }
+                      setSelectedDate(1);
+                    }}
+                  >
                     <ChevronRight size={18} className="text-[#ACDCEE]" />
                   </button>
                 </div>
@@ -141,31 +208,30 @@ export default function Home() {
                 <div className="grid grid-cols-7 gap-2 mb-4 text-center text-xs font-semibold text-[#ACDCEE]/70 uppercase tracking-wider">
                   <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
                 </div>
-                
-                <div className="grid grid-cols-7 gap-2 text-sm">
-                  <div></div>
 
+                <div className="grid grid-cols-7 gap-2 text-sm">
+                  {Array.from({ length: getFirstDayOfWeek(currentMonth, currentYear) }).map((_, i) => (
+                    <div key={`empty-${i}`}></div>
+                  ))}
                   {daysInMonth.map((day) => {
-                    const isSelected = day === selectedDate;
-                    const hasEvent = eventDays.includes(day);
-                    
+                    const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+                    const hasEvent = eventDaysSet.has(day);
                     return (
-                      <button
+                      <div
                         key={day}
-                        onClick={() => setSelectedDate(day)}
                         className={`
                           aspect-square flex flex-col items-center justify-center rounded-xl relative transition-all duration-300
-                          ${isSelected ? 'bg-[#2E94B9] text-[#F0FBFF] shadow-lg border border-white/20 font-bold' : 'hover:bg-white/10 text-[#F0FBFF]/80 hover:text-[#F0FBFF]'}
+                          ${isToday ? 'bg-[#2E94B9] text-[#F0FBFF] shadow-lg border border-white/20 font-bold' : 'text-[#F0FBFF]/80'}
                         `}
                       >
                         {day}
-                        {hasEvent && !isSelected && (
+                        {hasEvent && !isToday && (
                           <div className="absolute bottom-1.5 w-1 h-1 bg-[#ACDCEE] rounded-full"></div>
                         )}
-                        {hasEvent && isSelected && (
+                        {hasEvent && isToday && (
                           <div className="absolute bottom-1.5 w-1 h-1 bg-[#F0FBFF] rounded-full"></div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -184,9 +250,18 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-4">
-              {featuredEvents.map((event) => (
-                <div 
-                  key={event.id} 
+              {loading && (
+                <div className="text-[#ACDCEE] text-center py-8">Carregando eventos...</div>
+              )}
+              {error && (
+                <div className="text-red-400 text-center py-8">{error}</div>
+              )}
+              {!loading && !error && featuredEvents.length === 0 && (
+                <div className="text-[#ACDCEE] text-center py-8">Nenhum evento encontrado.</div>
+              )}
+              {!loading && !error && featuredEvents.map((event) => (
+                <div
+                  key={event.id}
                   className="group bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl rounded-2xl p-5 
                              border border-b-black/20 border-r-black/20 border-t-white/20 border-l-white/10 
                              shadow-[0_10px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_10px_25px_rgba(46,148,185,0.15)] 
@@ -194,9 +269,20 @@ export default function Home() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#2E94B9]/10 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
 
-                  <div className="relative z-10 flex-shrink-0 bg-black/30 rounded-xl p-3 text-center min-w-[70px] border-b border-white/10 shadow-inner">
-                    <span className="block text-xs text-[#ACDCEE] font-medium uppercase">{event.date.split(' ')[1]}</span>
-                    <span className="block text-xl font-bold text-[#F0FBFF]">{event.date.split(' ')[0]}</span>
+                  <div className="relative z-10 flex-shrink-0 bg-black/30 rounded-xl flex flex-col items-center justify-center min-w-[64px] min-h-[64px] w-[64px] h-[64px] text-center border-b border-white/10 shadow-inner">
+                    {(() => {
+                      const { day, month } = getDayAndMonth(event.event_date);
+                      return (
+                        <>
+                          <span className="block text-xs font-bold uppercase text-[#ACDCEE] tracking-widest mb-1">
+                            {month}
+                          </span>
+                          <span className="block text-2xl font-extrabold text-[#F0FBFF] leading-none">
+                            {day}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   <div className="relative z-10 flex-grow">
@@ -206,11 +292,10 @@ export default function Home() {
                     <h4 className="text-lg font-bold text-[#F0FBFF] leading-snug group-hover:text-[#ACDCEE] transition-colors mb-2">
                       {event.title}
                     </h4>
-                    
                     <div className="flex flex-wrap gap-4 text-[#F0FBFF]/70 text-xs font-medium">
                       <div className="flex items-center gap-1.5">
                         <Clock size={14} className="text-[#ACDCEE]" />
-                        <span>{event.time}</span>
+                        <span>{event.event_date ? formatTime(event.event_date) : ''}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <MapPin size={14} className="text-[#ACDCEE]" />
