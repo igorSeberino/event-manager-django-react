@@ -38,9 +38,23 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id"]
 
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("O nome da categoria não pode estar vazio.")
+        if Category.objects.filter(name__iexact=value).exists():
+            raise serializers.ValidationError("Já existe uma categoria com este nome.")
+        return value
+
 
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
         read_only_fields = ["id"]
+
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("O nome da subcategoria não pode estar vazio.")
+        if SubCategory.objects.filter(name__iexact=value).exists():
+            raise serializers.ValidationError("Já existe uma subcategoria com este nome.")
+        return value
