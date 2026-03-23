@@ -27,6 +27,8 @@ entity "Events" as events {
   capacity : int
   status : PENDING | APPROVED | REJECTED
   organizer_id : int <<FK>>
+  category_id : UUID <<FK>>
+  subcategory_id : UUID <<FK>>
 }
 
 entity "Registrations" as registrations {
@@ -42,4 +44,23 @@ users ||--o{ events
 users ||--o{ registrations 
 events ||--o{ registrations 
 
+entity "Categories" as categories {
+  + id : UUID <<PK>>
+  --
+  name : varchar
+}
+
+entity "Subcategories" as subcategories {
+  + id : UUID <<PK>>
+  --
+  name : varchar
+  category_id : UUID <<FK>>
+}
+
+
+categories ||--o{ subcategories
+categories ||--o{ events : "1 N"
+subcategories ||--o{ events : "1 N"
+
 @enduml
+
