@@ -7,9 +7,12 @@ from .models import Event, Category, SubCategory
 
 
 class EventSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.name", read_only=True)
+    subcategory = serializers.CharField(source="subcategory.name", read_only=True)
+    organizer = serializers.CharField(source="organizer.name", read_only=True)
     class Meta:
         model = Event
-        fields = "__all__"
+        fields = [field.name for field in Event._meta.fields] + ["category", "subcategory", "organizer"]
         read_only_fields = ["id"]
 
     def validate_event_date(self, value):
