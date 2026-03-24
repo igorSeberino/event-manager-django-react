@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Calendar as CalendarIcon, MapPin, Menu, X, ChevronRight, GraduationCap, ArrowRight, User, ChevronLeft, Clock } from 'lucide-react';
 
 function getDayAndMonth(dateString) {
@@ -32,14 +33,9 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/events/')
+    axios.get('http://localhost:8000/api/events/')
       .then((response) => {
-        if (!response.ok) {
-          throw new Error('Erro ao buscar eventos');
-        }
-        return response.json();
-      })
-      .then((data) => {
+        const data = response.data;
         if (Array.isArray(data)) {
           setFeaturedEvents(data);
         } else if (data && Array.isArray(data.results)) {
