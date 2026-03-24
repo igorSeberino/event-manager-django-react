@@ -52,11 +52,16 @@ Essa abordagem melhora a organização, manutenção e escalabilidade do código
 
 ---
 
+
 ### Frontend
 
 - React
+- React Router DOM
+- Axios
+- Lucide React
+- Vite
 
-Utilizado para construção da interface do usuário e consumo da API.
+Utilizado para construção da interface do usuário, navegação entre páginas, consumo da API REST e gerenciamento de requisições HTTP. O Vite é utilizado como bundler e ambiente de desenvolvimento. Lucide React fornece ícones para a interface.
 
 ---
 
