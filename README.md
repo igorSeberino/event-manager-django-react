@@ -44,38 +44,47 @@ Desenvolver uma aplicação web com frontend e backend separados, utilizando uma
 
 ### Backend
 
-- Django
-- Django REST Framework
+**Linguagem e Frameworks:**
 
-O backend será organizado em **apps separados**, onde cada app representa um domínio do sistema (ex: usuários, eventos, inscrições).  
-Essa abordagem melhora a organização, manutenção e escalabilidade do código.
+- Python — linguagem principal do backend
+- Django — framework web principal
+- Django REST Framework — construção de APIs RESTful
+- django-cors-headers — suporte a CORS para integração frontend-backend
+
+O backend é organizado em **apps separados**, onde cada app representa um domínio do sistema (ex: usuários, eventos, inscrições). Essa abordagem melhora a organização, manutenção e escalabilidade do código.
 
 ---
-
 
 ### Frontend
 
-- React
-- React Router DOM
-- Axios
-- Lucide React
-- Vite
+**Linguagem e Frameworks:**
 
-Utilizado para construção da interface do usuário, navegação entre páginas, consumo da API REST e gerenciamento de requisições HTTP. O Vite é utilizado como bundler e ambiente de desenvolvimento. Lucide React fornece ícones para a interface.
+- React — biblioteca principal para construção da interface
+- React Router DOM — navegação entre páginas
+- Axios — requisições HTTP para a API
+- Lucide React — ícones para a interface
+- Vite — bundler e ambiente de desenvolvimento
+- Tailwind CSS — framework utilitário para estilização rápida e responsiva
+
+O frontend é responsável pela interface do usuário, navegação, consumo da API REST e gerenciamento de requisições HTTP.
 
 ---
 
-### Estilização
+### Ferramentas de Qualidade/Dev
 
-- Tailwind CSS
+**Padronização, automação e qualidade de código:**
 
-Framework CSS utilitário para criação de interfaces responsivas de forma rápida.
+- Black — formatação automática de código Python
+- ESLint — análise estática e padronização de código JavaScript/React
+- Prettier — formatação automática de código JavaScript/React
+- Husky — hooks de git para automação de tarefas
+- lint-staged — executa comandos (linters/formatadores) apenas nos arquivos alterados e staged para commit
 
 ---
 
 ### Banco de Dados
 
-- MySQL
+- MySQL — sistema gerenciador de banco de dados relacional
 
 ---
 
@@ -91,6 +100,7 @@ Framework CSS utilitário para criação de interfaces responsivas de forma ráp
 O sistema segue uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados. A documentação arquitetural utiliza o **modelo C4** para representar o sistema em diferentes níveis de abstração.
 
 Os arquivos de modelagem estão em `./docs/architecture/`:
+
 - `c4-model.puml` - Diagramas C4 em formato PlantUML (edição)
 
 ### Nível 1 — Contexto do Sistema
@@ -115,7 +125,6 @@ Os arquivos de modelagem estão em `./docs/architecture/`:
 
 O banco de dados foi modelado seguindo um padrão relacional, com entidades principais para gerenciar usuários, eventos e inscrições:
 
-
 ### Diagrama Entidade-Relacionamento (DER)
 
 ![Diagrama ER - Modelagem do Banco de Dados](./docs/database/erd.png)
@@ -131,6 +140,7 @@ O diagrama ER foi atualizado para refletir o novo modelo de dados, incluindo as 
 - **Registrations**: Relacionamento entre usuários e eventos, registrando inscrições e presença
 
 Os arquivos de modelagem estão em `./docs/database/`:
+
 - `erd.puml` - Diagrama em formato PlantUML (edição)
 - `erd.png` - Imagem do diagrama
 
@@ -140,20 +150,19 @@ Os arquivos de modelagem estão em `./docs/database/`:
 
 O projeto será desenvolvido individualmente, seguindo as etapas:
 
-1. Planejamento e definição de requisitos  
-2. Modelagem do banco de dados  
-3. Configuração do backend (Django)  
-4. Implementação da API REST  
-5. Desenvolvimento do frontend em React  
-6. Integração frontend ↔ backend  
-7. Testes básicos  
-8. Documentação  
-9. Preparação da apresentação  
+1. Planejamento e definição de requisitos
+2. Modelagem do banco de dados
+3. Configuração do backend (Django)
+4. Implementação da API REST
+5. Desenvolvimento do frontend em React
+6. Integração frontend ↔ backend
+7. Testes básicos
+8. Documentação
+9. Preparação da apresentação
 
 ---
 
 ## 📂 Estrutura do Repositório
-
 
 ```
 /projeto-eventos
@@ -161,7 +170,6 @@ O projeto será desenvolvido individualmente, seguindo as etapas:
   /frontend
   README.md
 ```
-
 
 ---
 
