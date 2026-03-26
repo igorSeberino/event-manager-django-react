@@ -27,6 +27,7 @@ class IsOwnerOrAdmin(BasePermission):
             obj.organizer == request.user or request.user.role == User.Role.ADMIN
         )
 
+
 class IsAdminUser(BasePermission):
     message = "Apenas administradores podem acessar este recurso."
 

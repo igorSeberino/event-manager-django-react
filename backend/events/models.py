@@ -22,10 +22,18 @@ class Event(models.Model):
         "accounts.User", on_delete=models.CASCADE, related_name="events"
     )
     category = models.ForeignKey(
-        "events.Category", on_delete=models.CASCADE, related_name="events", null=True, blank=True
+        "events.Category",
+        on_delete=models.CASCADE,
+        related_name="events",
+        null=True,
+        blank=True,
     )
     subcategory = models.ForeignKey(
-        "events.SubCategory", on_delete=models.CASCADE, related_name="events", null=True, blank=True
+        "events.SubCategory",
+        on_delete=models.CASCADE,
+        related_name="events",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
