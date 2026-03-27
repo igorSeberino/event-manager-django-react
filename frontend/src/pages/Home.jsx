@@ -164,7 +164,10 @@ export default function Home() {
               <User size={16} />
               <span>Login</span>
             </button>
-            <button className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer">
+            <button
+              className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+              onClick={() => navigate("/cadastro")}
+            >
               Cadastro
             </button>
           </div>
@@ -201,7 +204,10 @@ export default function Home() {
                 <User size={18} />
                 <span>Login</span>
               </button>
-              <button className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:cursor-pointer">
+              <button
+                className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:cursor-pointer"
+                onClick={() => navigate("/cadastro")}
+              >
                 <span>Cadastro</span>
               </button>
             </div>
