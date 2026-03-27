@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Calendar as CalendarIcon,
@@ -15,7 +16,7 @@ import {
 
 function getDayAndMonth(dateString) {
   if (!dateString) return { day: "", month: "" };
-  const [year, month, day] = dateString.split("T")[0].split("-");
+  const parts = dateString.split("T")[0].split("-");
   const months = [
     "JAN",
     "FEV",
@@ -31,8 +32,8 @@ function getDayAndMonth(dateString) {
     "DEZ",
   ];
   return {
-    day: day,
-    month: months[parseInt(month, 10) - 1],
+    day: parts[2],
+    month: months[parseInt(parts[1], 10) - 1],
   };
 }
 
@@ -47,6 +48,8 @@ function formatTime(dateString) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -154,7 +157,10 @@ export default function Home() {
 
             <div className="h-6 w-px bg-white/10 mx-2"></div>
 
-            <button className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer">
+            <button
+              className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+              onClick={() => navigate("/login")}
+            >
               <User size={16} />
               <span>Login</span>
             </button>
@@ -188,7 +194,10 @@ export default function Home() {
             </nav>
 
             <div className="pt-4 border-t border-white/10 flex flex-row gap-3">
-              <button className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:cursor-pointer">
+              <button
+                className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:cursor-pointer"
+                onClick={() => navigate("/login")}
+              >
                 <User size={18} />
                 <span>Login</span>
               </button>

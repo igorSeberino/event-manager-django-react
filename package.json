@@ -9,13 +9,13 @@
   },
   "lint-staged": {
     "frontend/**/*.{js,jsx,ts,tsx}": [
-      "cd frontend && npx eslint --fix"
+      "bash -c 'cd frontend && npx eslint --fix \"${@#frontend/}\"' --"
     ],
     "*.{js,jsx,ts,tsx,json,css,md}": [
-      "npx prettier --write"
+      "prettier --write"
     ],
     "*.py": [
-      ".venv\\Scripts\\black"
+      ".venv/Scripts/python -m black"
     ]
   }
 }
