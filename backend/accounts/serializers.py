@@ -1,6 +1,7 @@
 import re
 
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 
 
@@ -62,3 +63,13 @@ class UserSerializer(serializers.ModelSerializer):
                     "O papel do usuário deve ser 'USER' ao criar uma nova conta."
                 )
         return value
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        token["role"] = user.role
+        token["name"] = user.name
+        return token
