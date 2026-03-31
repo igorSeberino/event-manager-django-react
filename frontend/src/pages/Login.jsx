@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {
@@ -21,6 +22,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,21 +36,20 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMsg("");
-
     try {
       const response = await axios.post(
         "http://localhost:8000/api/token/",
         credentials,
+        { withCredentials: true },
       );
-      Cookies.set("accessToken", response.data.access);
-      Cookies.set("refreshToken", response.data.refresh);
+
+      login(response.data.user);
       navigate("/");
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setErrorMsg("E-mail ou senha incorretos.");
+      if (error.response?.status === 401) {
+        setErrorMsg("Email ou senha incorretos.");
       } else {
-        setErrorMsg("Erro ao conectar com o servidor.");
+        setErrorMsg("Erro ao se conectar com o servidor.");
       }
     } finally {
       setIsLoading(false);

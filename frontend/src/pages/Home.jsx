@@ -61,7 +61,7 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/events/")
+      .get("/events/")
       .then((response) => {
         setFeaturedEvents(response.data.results);
         setLoading(false);
