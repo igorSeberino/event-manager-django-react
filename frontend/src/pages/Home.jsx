@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import {
   Calendar as CalendarIcon,
   MapPin,
@@ -12,6 +13,9 @@ import {
   User,
   ChevronLeft,
   Clock,
+  LogOut,
+  ChevronDown,
+  Bookmark,
 } from "lucide-react";
 
 function getDayAndMonth(dateString) {
@@ -49,8 +53,11 @@ function formatTime(dateString) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -58,6 +65,8 @@ export default function Home() {
   const [featuredEvents, setFeaturedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const firstName = user?.name?.split(" ")[0] || user?.username || "Usuário";
 
   useEffect(() => {
     axios
@@ -109,6 +118,12 @@ export default function Home() {
     )
     .slice(0, 3);
 
+  const handleLogout = async () => {
+    await axios.post("/logout/");
+    logout();
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-[#475053] text-[#F0FBFF] font-sans relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#2E94B9] rounded-full mix-blend-overlay filter blur-[150px] opacity-30 z-0 pointer-events-none"></div>
@@ -147,69 +162,150 @@ export default function Home() {
               >
                 Eventos
               </a>
-              <a
-                href="#"
-                className="text-[#F0FBFF]/90 hover:text-[#ACDCEE] transition-colors"
-              >
-                Minhas Inscrições
-              </a>
             </nav>
 
             <div className="h-6 w-px bg-white/10 mx-2"></div>
 
-            <button
-              className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
-              onClick={() => navigate("/login")}
-            >
-              <User size={16} />
-              <span>Login</span>
-            </button>
-            <button
-              className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
-              onClick={() => navigate("/cadastro")}
-            >
-              Cadastro
-            </button>
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 backdrop-blur-md py-1.5 px-3 rounded-2xl transition-all duration-300 border border-white/10 hover:border-white/20 hover:cursor-pointer group shadow-sm"
+                >
+                  <div className="p-1.5 bg-gradient-to-br from-[#2E94B9]/40 to-[#2E94B9]/10 rounded-full border border-[#2E94B9]/50 shadow-inner group-hover:scale-105 transition-transform">
+                    <User size={18} className="text-[#ACDCEE]" />
+                  </div>
+                  <span className="text-[#F0FBFF] font-medium text-sm tracking-wide">
+                    {firstName}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`text-[#ACDCEE] transition-transform duration-300 ${isProfileMenuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-gradient-to-br from-[#475053]/80 to-[#2E94B9]/10 backdrop-blur-2xl border border-b-black/30 border-r-black/30 border-t-white/20 border-l-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] py-2 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <a
+                      href="#"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors"
+                    >
+                      <User size={16} className="text-[#ACDCEE]" />
+                      Meu Perfil
+                    </a>
+                    <a
+                      href="#"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors"
+                    >
+                      <Bookmark size={16} className="text-[#ACDCEE]" />
+                      Minhas Inscrições
+                    </a>
+
+                    <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent my-1"></div>
+
+                    <button
+                      className="w-full text-left px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 transition-colors flex items-center gap-3 hover:cursor-pointer"
+                      onClick={() => handleLogout()}
+                    >
+                      <LogOut size={16} />
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <button
+                  className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+                  onClick={() => navigate("/login")}
+                >
+                  <User size={16} />
+                  <span>Login</span>
+                </button>
+                <button
+                  className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+                  onClick={() => navigate("/cadastro")}
+                >
+                  Cadastro
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden flex flex-col p-4 bg-[#475053]/95 backdrop-blur-xl border-t border-[#ACDCEE]/10 absolute w-full left-0 shadow-2xl z-50">
-            <nav className="flex flex-col gap-4 mb-6">
+          <div className="lg:hidden flex flex-col p-4 bg-[#475053]/95 backdrop-blur-2xl border-t border-[#ACDCEE]/10 absolute w-full left-0 shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-50">
+            <nav className="flex flex-col gap-2 mb-4">
               <a
                 href="#"
-                className="block text-[#F0FBFF] hover:text-[#ACDCEE] transition-colors font-medium"
+                className="block px-4 py-3 text-[#F0FBFF] hover:bg-white/5 rounded-xl transition-colors font-medium"
               >
                 Início
               </a>
               <a
                 href="#"
-                className="block text-[#F0FBFF]/90 hover:text-[#ACDCEE] transition-colors font-medium"
+                className="block px-4 py-3 text-[#F0FBFF]/90 hover:bg-white/5 rounded-xl transition-colors font-medium"
               >
                 Eventos
               </a>
-              <a
-                href="#"
-                className="block text-[#F0FBFF]/90 hover:text-[#ACDCEE] transition-colors font-medium"
-              >
-                Minhas Inscrições
-              </a>
             </nav>
 
-            <div className="pt-4 border-t border-white/10 flex flex-row gap-3">
-              <button
-                className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:cursor-pointer"
-                onClick={() => navigate("/login")}
-              >
-                <User size={18} />
-                <span>Login</span>
-              </button>
-              <button
-                className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:cursor-pointer"
-                onClick={() => navigate("/cadastro")}
-              >
-                <span>Cadastro</span>
-              </button>
+            <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
+              {user ? (
+                <div className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-xl border border-t-white/20 border-l-white/10 border-b-black/20 border-r-black/20 rounded-2xl p-4 shadow-lg">
+                  <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
+                    <div className="p-2.5 bg-gradient-to-br from-[#2E94B9]/30 to-[#2E94B9]/10 rounded-full border border-[#2E94B9]/50 shadow-inner">
+                      <User size={24} className="text-[#ACDCEE]" />
+                    </div>
+                    <div>
+                      <span className="block text-[#F0FBFF] font-bold text-xl leading-none">
+                        {firstName}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 mb-4">
+                    <a
+                      href="#"
+                      className="flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium"
+                    >
+                      <User size={18} className="text-[#ACDCEE]" />
+                      Meu Perfil
+                    </a>
+                    <a
+                      href="#"
+                      className="flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium"
+                    >
+                      <Bookmark size={18} className="text-[#ACDCEE]" />
+                      Minhas Inscrições
+                    </a>
+                  </div>
+
+                  <button
+                    className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-red-500/10 to-red-600/10 hover:from-red-500 hover:to-red-600 text-red-400 hover:text-white border border-red-500/30 hover:border-red-500 px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:cursor-pointer"
+                    onClick={() => handleLogout()}
+                  >
+                    <LogOut size={18} />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-row gap-3">
+                  <button
+                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:cursor-pointer"
+                    onClick={() => navigate("/login")}
+                  >
+                    <User size={18} />
+                    <span>Login</span>
+                  </button>
+                  <button
+                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:cursor-pointer"
+                    onClick={() => navigate("/cadastro")}
+                  >
+                    <span>Cadastro</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
