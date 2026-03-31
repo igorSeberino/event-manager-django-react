@@ -72,7 +72,9 @@ export default function Home() {
     axios
       .get("/events/")
       .then((response) => {
-        setFeaturedEvents(response.data.results);
+        // Adaptado caso sua API retorne os dados paginados ou direto
+        const data = response.data.results || response.data;
+        setFeaturedEvents(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -119,19 +121,30 @@ export default function Home() {
     .slice(0, 3);
 
   const handleLogout = async () => {
-    await axios.post("/logout/");
+    try {
+      await axios.post("/logout/");
+    } catch (e) {
+      console.error(e);
+    }
     logout();
     navigate("/");
   };
 
   return (
-    <div className="min-h-screen bg-[#475053] text-[#F0FBFF] font-sans relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#2E94B9] rounded-full mix-blend-overlay filter blur-[150px] opacity-30 z-0 pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#ACDCEE] rounded-full mix-blend-overlay filter blur-[150px] opacity-20 z-0 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#475053] text-[#F0FBFF] font-sans relative overflow-hidden flex flex-col">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#2E94B9] rounded-full mix-blend-overlay filter blur-[180px] opacity-30 z-0 pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#ACDCEE] rounded-full mix-blend-overlay filter blur-[180px] opacity-20 z-0 pointer-events-none"></div>
 
-      <header className="sticky top-0 z-50 bg-[#475053]/80 backdrop-blur-lg border-b border-[#ACDCEE]/10 shadow-sm transition-all duration-300">
-        <div className="flex justify-between items-center max-w-7xl mx-auto p-4 md:px-8">
-          <div className="flex items-center gap-3 cursor-pointer group">
+      {/* Header com correção de blur para menus suspensos */}
+      <header className="sticky top-0 z-50 w-full transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-[#475053]/85 backdrop-blur-md -webkit-backdrop-filter border-b border-black/20 shadow-sm -z-10"></div>
+
+        <div className="flex justify-between items-center max-w-7xl mx-auto p-4 md:px-8 relative z-10">
+          <div
+            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => navigate("/")}
+          >
             <div className="p-2 bg-gradient-to-br from-[#2E94B9]/40 to-transparent rounded-xl border border-white/5 shadow-inner">
               <GraduationCap size={28} className="text-[#ACDCEE]" />
             </div>
@@ -142,7 +155,7 @@ export default function Home() {
           </div>
 
           <button
-            className="lg:hidden text-[#F0FBFF] hover:text-[#ACDCEE] transition-colors"
+            className="lg:hidden text-[#F0FBFF] hover:text-[#ACDCEE] transition-colors cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -150,18 +163,18 @@ export default function Home() {
 
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex gap-8 font-medium text-sm tracking-wide">
-              <a
-                href="#"
-                className="text-[#F0FBFF] hover:text-[#ACDCEE] transition-colors drop-shadow-sm"
+              <button
+                onClick={() => navigate("/")}
+                className="text-[#F0FBFF] hover:text-[#ACDCEE] transition-colors drop-shadow-sm cursor-pointer"
               >
                 Início
-              </a>
-              <a
-                href="#"
-                className="text-[#F0FBFF]/90 hover:text-[#ACDCEE] transition-colors"
+              </button>
+              <button
+                onClick={() => navigate("/eventos")}
+                className="text-[#F0FBFF]/90 hover:text-[#ACDCEE] transition-colors cursor-pointer"
               >
                 Eventos
-              </a>
+              </button>
             </nav>
 
             <div className="h-6 w-px bg-white/10 mx-2"></div>
@@ -170,7 +183,7 @@ export default function Home() {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 backdrop-blur-md py-1.5 px-3 rounded-2xl transition-all duration-300 border border-white/10 hover:border-white/20 hover:cursor-pointer group shadow-sm"
+                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 py-1.5 px-3 rounded-2xl transition-all duration-300 border border-white/10 hover:border-white/20 hover:cursor-pointer group shadow-sm"
                 >
                   <div className="p-1.5 bg-gradient-to-br from-[#2E94B9]/40 to-[#2E94B9]/10 rounded-full border border-[#2E94B9]/50 shadow-inner group-hover:scale-105 transition-transform">
                     <User size={18} className="text-[#ACDCEE]" />
@@ -185,26 +198,26 @@ export default function Home() {
                 </button>
 
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-gradient-to-br from-[#475053]/80 to-[#2E94B9]/10 backdrop-blur-2xl border border-b-black/30 border-r-black/30 border-t-white/20 border-l-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] py-2 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <a
-                      href="#"
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors"
+                  <div className="absolute right-0 mt-3 w-56 bg-[#475053]/20 backdrop-blur-xs -webkit-backdrop-filter border border-white/10 border-t-white/20 border-l-white/20 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.3)] py-2 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button
+                      onClick={() => navigate("/perfil")}
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <User size={16} className="text-[#ACDCEE]" />
                       Meu Perfil
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors"
+                    </button>
+                    <button
+                      onClick={() => navigate("/minhas-inscricoes")}
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <Bookmark size={16} className="text-[#ACDCEE]" />
                       Minhas Inscrições
-                    </a>
+                    </button>
 
-                    <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent my-1"></div>
+                    <div className="h-px w-full bg-white/10 my-1"></div>
 
                     <button
-                      className="w-full text-left px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 transition-colors flex items-center gap-3 hover:cursor-pointer"
+                      className="w-full text-left px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-3 cursor-pointer"
                       onClick={() => handleLogout()}
                     >
                       <LogOut size={16} />
@@ -216,14 +229,14 @@ export default function Home() {
             ) : (
               <>
                 <button
-                  className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+                  className="group flex items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:cursor-pointer"
                   onClick={() => navigate("/login")}
                 >
                   <User size={16} />
                   <span>Login</span>
                 </button>
                 <button
-                  className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow-[0_4px_12px_rgba(46,148,185,0.3)] hover:cursor-pointer"
+                  className="bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 shadow-sm hover:cursor-pointer"
                   onClick={() => navigate("/cadastro")}
                 >
                   Cadastro
@@ -233,26 +246,33 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Menu Mobile */}
         {isMenuOpen && (
-          <div className="lg:hidden flex flex-col p-4 bg-[#475053]/95 backdrop-blur-2xl border-t border-[#ACDCEE]/10 absolute w-full left-0 shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-50">
+          <div className="lg:hidden absolute top-full left-0 w-full flex flex-col p-5 bg-gradient-to-b from-white/10 to-[#475053]/20 backdrop-blur-md -webkit-backdrop-filter border-b border-white/10 rounded-b-2xl shadow-[0_20px_40px_rgba(0,0,0,0.4)] z-40 animate-in slide-in-from-top-2 duration-200">
             <nav className="flex flex-col gap-2 mb-4">
-              <a
-                href="#"
-                className="block px-4 py-3 text-[#F0FBFF] hover:bg-white/5 rounded-xl transition-colors font-medium"
+              <button
+                onClick={() => {
+                  navigate("/");
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-colors font-medium cursor-pointer"
               >
                 Início
-              </a>
-              <a
-                href="#"
-                className="block px-4 py-3 text-[#F0FBFF]/90 hover:bg-white/5 rounded-xl transition-colors font-medium"
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/eventos");
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 text-[#F0FBFF]/90 hover:bg-white/10 rounded-xl transition-colors font-medium cursor-pointer"
               >
                 Eventos
-              </a>
+              </button>
             </nav>
 
             <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
               {user ? (
-                <div className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-xl border border-t-white/20 border-l-white/10 border-b-black/20 border-r-black/20 rounded-2xl p-4 shadow-lg">
+                <div className="bg-gradient-to-b from-white/10 to-transparent backdrop-blur-md border border-t-white/20 border-l-white/10 border-b-black/20 border-r-black/20 rounded-2xl p-4 shadow-lg">
                   <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
                     <div className="p-2.5 bg-gradient-to-br from-[#2E94B9]/30 to-[#2E94B9]/10 rounded-full border border-[#2E94B9]/50 shadow-inner">
                       <User size={24} className="text-[#ACDCEE]" />
@@ -265,24 +285,30 @@ export default function Home() {
                   </div>
 
                   <div className="flex flex-col gap-2 mb-4">
-                    <a
-                      href="#"
-                      className="flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium"
+                    <button
+                      onClick={() => {
+                        navigate("/perfil");
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full text-left flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium cursor-pointer"
                     >
                       <User size={18} className="text-[#ACDCEE]" />
                       Meu Perfil
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium"
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate("/minhas-inscricoes");
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full text-left flex items-center gap-3 px-3 py-2.5 text-[#F0FBFF]/90 hover:text-[#F0FBFF] hover:bg-white/10 rounded-xl transition-all duration-300 font-medium cursor-pointer"
                     >
                       <Bookmark size={18} className="text-[#ACDCEE]" />
                       Minhas Inscrições
-                    </a>
+                    </button>
                   </div>
 
                   <button
-                    className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-red-500/10 to-red-600/10 hover:from-red-500 hover:to-red-600 text-red-400 hover:text-white border border-red-500/30 hover:border-red-500 px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:cursor-pointer"
+                    className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-red-500/10 to-red-600/10 hover:from-red-500 hover:to-red-600 text-red-400 hover:text-white border border-red-500/30 hover:border-red-500 px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-sm cursor-pointer"
                     onClick={() => handleLogout()}
                   >
                     <LogOut size={18} />
@@ -292,15 +318,21 @@ export default function Home() {
               ) : (
                 <div className="flex flex-row gap-3">
                   <button
-                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:cursor-pointer"
-                    onClick={() => navigate("/login")}
+                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9]/10 hover:bg-[#2E94B9] text-[#ACDCEE] hover:text-[#F0FBFF] border border-[#2E94B9]/50 px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 cursor-pointer"
+                    onClick={() => {
+                      navigate("/login");
+                      setIsMenuOpen(false);
+                    }}
                   >
                     <User size={18} />
                     <span>Login</span>
                   </button>
                   <button
-                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:cursor-pointer"
-                    onClick={() => navigate("/cadastro")}
+                    className="flex-1 flex justify-center items-center gap-2 bg-[#2E94B9] text-[#F0FBFF] hover:bg-[#1f7596] px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md cursor-pointer"
+                    onClick={() => {
+                      navigate("/cadastro");
+                      setIsMenuOpen(false);
+                    }}
                   >
                     <span>Cadastro</span>
                   </button>
@@ -311,7 +343,7 @@ export default function Home() {
         )}
       </header>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-20 lg:px-8">
+      <main className="relative z-10 flex-grow max-w-7xl mx-auto px-4 py-12 md:py-20 lg:px-8 w-full">
         <section className="text-center flex flex-col items-center mb-16 md:mb-24">
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-t-white/20 border-[#ACDCEE]/20 bg-[#ACDCEE]/10 backdrop-blur-sm text-[#ACDCEE] text-sm font-medium tracking-wide shadow-lg">
             Plataforma de Gestão 2026
@@ -326,7 +358,10 @@ export default function Home() {
             Descubra palestras, minicursos e workshops. Inscreva-se e acompanhe
             sua jornada acadêmica em uma experiência centralizada.
           </p>
-          <button className="group relative bg-gradient-to-br from-[#2E94B9] to-[#1f7596] text-[#F0FBFF] font-semibold py-4 px-8 rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_15px_30px_rgba(46,148,185,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 border-t border-white/20 hover:cursor-pointer">
+          <button
+            onClick={() => navigate("/eventos")}
+            className="group relative bg-gradient-to-br from-[#2E94B9] to-[#1f7596] text-[#F0FBFF] font-semibold py-4 px-8 rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_15px_30px_rgba(46,148,185,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 border-t border-white/20 cursor-pointer"
+          >
             Explorar Eventos
             <ArrowRight
               size={20}
@@ -367,7 +402,7 @@ export default function Home() {
                 </h4>
                 <div className="flex gap-2">
                   <button
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10 hover:cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (currentMonth === 0) {
                         setCurrentMonth(11);
@@ -380,7 +415,7 @@ export default function Home() {
                     <ChevronLeft size={18} className="text-[#ACDCEE]" />
                   </button>
                   <button
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10 hover:cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (currentMonth === 11) {
                         setCurrentMonth(0);
@@ -447,16 +482,16 @@ export default function Home() {
               <h3 className="text-2xl font-bold text-[#F0FBFF] tracking-tight drop-shadow-sm">
                 Eventos em Destaque
               </h3>
-              <a
-                href="#"
-                className="group flex items-center gap-2 text-[#ACDCEE] hover:text-[#F0FBFF] text-sm font-medium transition-colors hover:cursor-pointer"
+              <button
+                onClick={() => navigate("/eventos")}
+                className="group flex items-center gap-2 text-[#ACDCEE] hover:text-[#F0FBFF] text-sm font-medium transition-colors cursor-pointer"
               >
                 Ver todos{" "}
                 <ChevronRight
                   size={16}
                   className="group-hover:translate-x-1 transition-transform"
                 />
-              </a>
+              </button>
             </div>
 
             <div className="flex flex-col gap-4 lg:gap-5">
@@ -478,10 +513,11 @@ export default function Home() {
                 displayedEvents.map((event) => (
                   <div
                     key={event.id}
+                    onClick={() => navigate(`/eventos/${event.id}`)}
                     className="group bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl rounded-2xl p-5 
                              border border-b-black/20 border-r-black/20 border-t-white/20 border-l-white/10 
                              shadow-[0_10px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_10px_25px_rgba(46,148,185,0.15)] 
-                             hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:items-center relative overflow-hidden hover:cursor-pointer"
+                             hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:items-center relative overflow-hidden cursor-pointer"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-[#2E94B9]/10 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
 
@@ -525,8 +561,8 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="relative z-10 flex-shrink-0 mt-2 sm:mt-0">
-                      <button className="w-full sm:w-auto px-4 py-2 rounded-lg font-semibold bg-white/5 border border-t-white/20 border-[#ACDCEE]/20 text-[#ACDCEE] hover:bg-[#2E94B9] hover:border-[#2E94B9] hover:text-[#F0FBFF] transition-all duration-300 flex justify-center hover:cursor-pointer">
+                    <div className="relative z-10 flex-shrink-0 mt-2 sm:mt-0 pointer-events-none">
+                      <button className="w-full sm:w-auto px-4 py-2 rounded-lg font-semibold bg-white/5 border border-t-white/20 border-[#ACDCEE]/20 text-[#ACDCEE] group-hover:bg-[#2E94B9] group-hover:border-[#2E94B9] group-hover:text-[#F0FBFF] transition-all duration-300 flex justify-center">
                         Detalhes
                       </button>
                     </div>
