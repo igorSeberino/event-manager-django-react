@@ -1,13 +1,17 @@
 from django.utils import timezone
 
 from accounts.models import User
-from config.exceptions import PermissionDenied, ValidationError
+from config.exceptions import Conflict, PermissionDenied, ValidationError
 from events.models import Category, Event, SubCategory
 
 
 def _validate_event_date(event_date) -> None:
     if event_date < timezone.now():
-        raise ValidationError("A data do evento deve ser no futuro.")
+        raise ValidationError(
+            "A data do evento deve ser no futuro.",
+            code="event_date_in_past",
+            field="event_date",
+        )
 
 
 def create_event(
@@ -26,11 +30,13 @@ def create_event(
     _validate_event_date(event_date)
     if acting_user.role not in (User.Role.ORGANIZER, User.Role.ADMIN):
         raise PermissionDenied(
-            "Apenas organizadores e administradores podem criar eventos."
+            "Apenas organizadores e administradores podem criar eventos.",
+            code="event_creation_not_allowed",
         )
     if acting_user.role != User.Role.ADMIN and status != Event.Status.PENDING:
         raise PermissionDenied(
-            "Apenas administradores podem definir o status na criação do evento."
+            "Apenas administradores podem definir o status na criação do evento.",
+            code="event_status_change_not_allowed",
         )
     event = Event(
         title=title,
@@ -52,11 +58,13 @@ def update_event(
 ) -> Event:
     if acting_user != instance.organizer and acting_user.role != User.Role.ADMIN:
         raise PermissionDenied(
-            "Apenas o organizador do evento ou um administrador podem atualizá-lo."
+            "Apenas o organizador do evento ou um administrador podem atualizá-lo.",
+            code="event_update_not_allowed",
         )
     if status is not None and acting_user.role != User.Role.ADMIN:
         raise PermissionDenied(
-            "Apenas administradores podem alterar o status do evento."
+            "Apenas administradores podem alterar o status do evento.",
+            code="event_status_change_not_allowed",
         )
     if "event_date" in fields:
         _validate_event_date(fields["event_date"])
@@ -70,21 +78,43 @@ def update_event(
 
 def create_category(*, name: str, acting_user: User) -> Category:
     if acting_user.role != User.Role.ADMIN:
-        raise PermissionDenied("Apenas administradores podem criar categorias.")
+        raise PermissionDenied(
+            "Apenas administradores podem criar categorias.",
+            code="category_admin_only",
+        )
     if not name.strip():
-        raise ValidationError("O nome da categoria não pode estar vazio.")
+        raise ValidationError(
+            "O nome da categoria não pode estar vazio.",
+            code="category_name_empty",
+            field="name",
+        )
     if Category.objects.filter(name__iexact=name).exists():
-        raise ValidationError("Já existe uma categoria com este nome.")
+        raise Conflict(
+            "Já existe uma categoria com este nome.",
+            code="category_name_taken",
+            field="name",
+        )
     return Category.objects.create(name=name)
 
 
 def update_category(*, instance: Category, name: str, acting_user: User) -> Category:
     if acting_user.role != User.Role.ADMIN:
-        raise PermissionDenied("Apenas administradores podem atualizar categorias.")
+        raise PermissionDenied(
+            "Apenas administradores podem atualizar categorias.",
+            code="category_admin_only",
+        )
     if not name.strip():
-        raise ValidationError("O nome da categoria não pode estar vazio.")
+        raise ValidationError(
+            "O nome da categoria não pode estar vazio.",
+            code="category_name_empty",
+            field="name",
+        )
     if Category.objects.filter(name__iexact=name).exclude(pk=instance.pk).exists():
-        raise ValidationError("Já existe uma categoria com este nome.")
+        raise Conflict(
+            "Já existe uma categoria com este nome.",
+            code="category_name_taken",
+            field="name",
+        )
     instance.name = name
     instance.save()
     return instance
@@ -92,11 +122,22 @@ def update_category(*, instance: Category, name: str, acting_user: User) -> Cate
 
 def create_subcategory(*, name: str, category_id, acting_user: User) -> SubCategory:
     if acting_user.role != User.Role.ADMIN:
-        raise PermissionDenied("Apenas administradores podem criar subcategorias.")
+        raise PermissionDenied(
+            "Apenas administradores podem criar subcategorias.",
+            code="subcategory_admin_only",
+        )
     if not name.strip():
-        raise ValidationError("O nome da subcategoria não pode estar vazio.")
+        raise ValidationError(
+            "O nome da subcategoria não pode estar vazio.",
+            code="subcategory_name_empty",
+            field="name",
+        )
     if SubCategory.objects.filter(name__iexact=name).exists():
-        raise ValidationError("Já existe uma subcategoria com este nome.")
+        raise Conflict(
+            "Já existe uma subcategoria com este nome.",
+            code="subcategory_name_taken",
+            field="name",
+        )
     return SubCategory.objects.create(name=name, category_id=category_id)
 
 
@@ -104,11 +145,22 @@ def update_subcategory(
     *, instance: SubCategory, name: str, acting_user: User
 ) -> SubCategory:
     if acting_user.role != User.Role.ADMIN:
-        raise PermissionDenied("Apenas administradores podem atualizar subcategorias.")
+        raise PermissionDenied(
+            "Apenas administradores podem atualizar subcategorias.",
+            code="subcategory_admin_only",
+        )
     if not name.strip():
-        raise ValidationError("O nome da subcategoria não pode estar vazio.")
+        raise ValidationError(
+            "O nome da subcategoria não pode estar vazio.",
+            code="subcategory_name_empty",
+            field="name",
+        )
     if SubCategory.objects.filter(name__iexact=name).exclude(pk=instance.pk).exists():
-        raise ValidationError("Já existe uma subcategoria com este nome.")
+        raise Conflict(
+            "Já existe uma subcategoria com este nome.",
+            code="subcategory_name_taken",
+            field="name",
+        )
     instance.name = name
     instance.save()
     return instance

@@ -1,22 +1,24 @@
 class ServiceError(Exception):
-    """Base para todas as exceções da service layer."""
+    default_code = "service_error"
 
-    pass
+    def __init__(self, message, code=None, field=None):
+        self.message = message
+        self.code = code or self.default_code
+        self.field = field
+        super().__init__(message)
 
 
 class ValidationError(ServiceError):
-    """Regra de negócio violada. Traduzida para HTTP 400 pela view."""
-
-    pass
+    default_code = "validation_error"
 
 
 class PermissionDenied(ServiceError):
-    """Usuário não tem permissão para esta operação. Traduzida para HTTP 403."""
-
-    pass
+    default_code = "permission_denied"
 
 
 class NotFound(ServiceError):
-    """Recurso não encontrado. Traduzida para HTTP 404."""
+    default_code = "not_found"
 
-    pass
+
+class Conflict(ServiceError):
+    default_code = "conflict"
