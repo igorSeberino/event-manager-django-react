@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
+from django.conf import settings
 
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
@@ -19,12 +20,13 @@ class TokenRefreshMiddleware(MiddlewareMixin):
                     refresh = RefreshToken(refresh_token)
                     new_access_token = str(refresh.access_token)
 
+                    request.COOKIES["access_token"] = new_access_token
                     request.META["HTTP_AUTHORIZATION"] = f"Bearer {new_access_token}"
                     request.new_token = new_access_token
                 except TokenError:
-                    return JsonResponse({"detail": "Session expired."}, status=401)
+                    request.expired_session = True
             else:
-                return JsonResponse({"detail": "Authentication required."}, status=401)
+                request.expired_session = True
 
         response = self.get_response(request)
 
@@ -36,6 +38,10 @@ class TokenRefreshMiddleware(MiddlewareMixin):
                 secure=True,
                 samesite="None",
             )
+
+        if hasattr(request, "expired_session"):
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
 
         return response
 
