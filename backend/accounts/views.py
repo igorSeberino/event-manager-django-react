@@ -4,15 +4,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-from config.exceptions import PermissionDenied, ValidationError
-from config.mixins import ServiceExceptionMixin
 from . import services
 from .models import User
 from .permissions import IsOwnerOrAdmin
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer
 
 
-class UserViewSet(ServiceExceptionMixin, viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(is_superuser=False)
     permission_classes = [IsOwnerOrAdmin]
     serializer_class = UserSerializer
@@ -20,14 +18,11 @@ class UserViewSet(ServiceExceptionMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user = services.create_user(
-                name=serializer.validated_data["name"],
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-            )
-        except ValidationError as exc:
-            return self.handle_service_error(exc)
+        user = services.create_user(
+            name=serializer.validated_data["name"],
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
         return Response(self.get_serializer(user).data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
@@ -36,14 +31,11 @@ class UserViewSet(ServiceExceptionMixin, viewsets.ModelViewSet):
             instance, data=request.data, partial=kwargs.get("partial", False)
         )
         serializer.is_valid(raise_exception=True)
-        try:
-            user = services.update_user(
-                instance=instance,
-                acting_user=request.user,
-                **serializer.validated_data,
-            )
-        except (ValidationError, PermissionDenied) as exc:
-            return self.handle_service_error(exc)
+        user = services.update_user(
+            instance=instance,
+            acting_user=request.user,
+            **serializer.validated_data,
+        )
         return Response(self.get_serializer(user).data)
 
 
