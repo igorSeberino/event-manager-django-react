@@ -9,9 +9,15 @@ from .serializers import EventSerializer, CategorySerializer, SubCategorySeriali
 
 
 class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.all()
+    queryset = Event.objects.select_related(
+        "category", "subcategory", "organizer"
+    ).all()
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOrganizerOrAdmin, IsOwnerOrAdmin]
+    filterset_fields = ["status", "category", "subcategory"]
+    search_fields = ["title", "description", "location"]
+    ordering_fields = ["event_date", "title", "capacity"]
+    ordering = ["-event_date"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

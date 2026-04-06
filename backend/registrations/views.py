@@ -9,9 +9,10 @@ from .serializers import RegistrationSerializer
 
 
 class RegistrationViewSet(viewsets.ModelViewSet):
-    queryset = Registration.objects.all()
+    queryset = Registration.objects.select_related("user", "event").all()
     serializer_class = RegistrationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrAdmin]
+    filterset_fields = ["event", "user"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
