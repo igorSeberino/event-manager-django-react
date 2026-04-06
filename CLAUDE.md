@@ -68,6 +68,10 @@ Todas as rotas sob `/api/`:
 - `events/urls.py`: `/events/`, `/categories/`, `/subcategories/`
 - `registrations/urls.py`: `/registrations/`
 
+## Frontend Lint Rules
+
+O projeto usa `eslint-plugin-react-hooks` (recommended config) que inclui a regra `react-hooks/set-state-in-effect`. Não chamar `setState` de forma síncrona no corpo de um `useEffect` — mover para event handlers, callbacks assíncronos (`.then()`, `.catch()`, `.finally()`) ou inicializar o estado com o valor correto via `useState`.
+
 ## Key Patterns
 
 - Views usam `serializer.is_valid(raise_exception=True)` e passam `validated_data` para a service layer.
