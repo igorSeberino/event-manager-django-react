@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 import {
   User,
   Mail,
@@ -54,8 +54,7 @@ export default function Cadastro() {
     setIsLoading(true);
 
     try {
-      // Ajuste esta URL para o endpoint correto de criação de usuário no seu Django
-      const _response = await axios.post("http://localhost:8000/api/users/", {
+      await api.post("/users/", {
         name: formData.name,
         email: formData.email,
         password: formData.password,

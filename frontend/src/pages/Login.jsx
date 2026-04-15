@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
-import Cookies from "js-cookie";
+import api from "../services/api";
 import {
   Mail,
   Lock,
@@ -37,11 +36,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/token/",
-        credentials,
-        { withCredentials: true },
-      );
+      const response = await api.post("/token/", credentials);
 
       login(response.data.user);
       navigate("/");

@@ -14,7 +14,7 @@ class EventViewSet(viewsets.ModelViewSet):
     ).all()
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOrganizerOrAdmin, IsOwnerOrAdmin]
-    filterset_fields = ["status", "category", "subcategory"]
+    filterset_fields = ["status", "category", "subcategory", "organizer"]
     search_fields = ["title", "description", "location"]
     ordering_fields = ["event_date", "title", "capacity"]
     ordering = ["-event_date"]
