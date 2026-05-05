@@ -14,8 +14,8 @@
     "*.{js,jsx,ts,tsx,json,css,md}": [
       "prettier --write"
     ],
-    "*.py": [
-      ".venv/Scripts/python -m black"
+    "backend/**/*.py": [
+      "bash -c 'docker compose run --rm --no-deps -T backend black \"${@#*backend/}\"' --"
     ]
   }
 }
