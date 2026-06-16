@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from config.exceptions import ValidationError
 from . import services
 from .models import Registration
 from .permissions import RegistrationPermission
@@ -37,3 +38,12 @@ class RegistrationViewSet(viewsets.ModelViewSet):
             check_in=serializer.validated_data.get("check_in", instance.check_in),
         )
         return Response(self.get_serializer(registration).data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.event.is_finished:
+            raise ValidationError(
+                "O evento já foi realizado; não é possível alterar as inscrições.",
+                code="event_already_finished",
+            )
+        return super().destroy(request, *args, **kwargs)

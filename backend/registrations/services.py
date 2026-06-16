@@ -41,6 +41,11 @@ def set_check_in(*, registration: Registration, acting_user: User, check_in: boo
             "Apenas o organizador do evento pode confirmar a presença.",
             code="check_in_not_allowed",
         )
+    if registration.event.is_finished:
+        raise ValidationError(
+            "O evento já foi realizado; não é possível alterar a presença.",
+            code="event_already_finished",
+        )
     registration.check_in = bool(check_in)
     registration.save(update_fields=["check_in"])
     return registration
