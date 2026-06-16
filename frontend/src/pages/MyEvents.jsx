@@ -14,6 +14,7 @@ import {
   AlertCircle,
   CalendarRange,
   ClipboardList,
+  Send,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -54,6 +55,7 @@ export default function MyEvents() {
   const [feedbackMsg, setFeedbackMsg] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [resubmittingId, setResubmittingId] = useState(null);
 
   useEffect(() => {
     if (!user) return;
@@ -80,6 +82,27 @@ export default function MyEvents() {
     } finally {
       setDeletingId(null);
       setConfirmDeleteId(null);
+    }
+  };
+
+  const handleResubmit = async (eventId) => {
+    setResubmittingId(eventId);
+    setFeedbackMsg(null);
+    try {
+      const res = await api.post(`/events/${eventId}/resubmit/`);
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, ...res.data } : e)),
+      );
+      setFeedbackMsg({
+        type: "success",
+        text: "Evento reenviado para análise.",
+      });
+    } catch (err) {
+      const msg =
+        err.response?.data?.error?.message || "Erro ao reenviar evento.";
+      setFeedbackMsg({ type: "error", text: msg });
+    } finally {
+      setResubmittingId(null);
     }
   };
 
@@ -221,6 +244,18 @@ export default function MyEvents() {
                           <ClipboardList size={14} /> Inscritos
                         </button>
                       )}
+                      {event.status === "REJECTED" && (
+                        <button
+                          onClick={() => handleResubmit(event.id)}
+                          disabled={resubmittingId === event.id}
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg transition-all cursor-pointer text-emerald-400 disabled:opacity-50"
+                        >
+                          <Send size={14} />{" "}
+                          {resubmittingId === event.id
+                            ? "Enviando..."
+                            : "Enviar para análise"}
+                        </button>
+                      )}
                       <button
                         onClick={() => navigate(`/eventos/${event.id}/editar`)}
                         className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer text-[#ACDCEE]"
@@ -254,6 +289,23 @@ export default function MyEvents() {
                       )}
                     </div>
                   </div>
+
+                  {event.status === "REJECTED" && event.rejection_reason && (
+                    <div className="mt-4 flex items-start gap-2.5 bg-red-500/[0.07] border border-red-500/20 rounded-xl px-4 py-3">
+                      <AlertCircle
+                        size={16}
+                        className="text-red-400 flex-shrink-0 mt-0.5"
+                      />
+                      <div>
+                        <p className="text-xs font-semibold text-red-400 mb-0.5">
+                          Motivo da rejeição
+                        </p>
+                        <p className="text-sm text-[#F0FBFF]/70">
+                          {event.rejection_reason}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
