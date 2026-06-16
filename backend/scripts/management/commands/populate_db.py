@@ -463,6 +463,10 @@ class Command(BaseCommand):
                     if status == Event.Status.REJECTED
                     else ""
                 ),
+                # Eventos passados já foram encerrados pelo organizador.
+                closed_at=(
+                    event_date + timezone.timedelta(hours=2) if is_past else None
+                ),
             )
             eventos_meta.append((evento, is_past))
 
