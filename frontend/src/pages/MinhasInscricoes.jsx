@@ -251,11 +251,15 @@ export default function MinhasInscricoes() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#2E94B9]/10 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
 
-                  {/* Check-in status */}
+                  {/* Status de presença */}
                   <div className="relative z-10 flex-shrink-0">
-                    {item.check_in ? (
+                    {item.attendance_status === "PRESENT" ? (
                       <div className="flex items-center gap-1.5 text-green-300 text-xs font-bold uppercase tracking-wider">
-                        <CheckCircle size={18} /> Check-in realizado
+                        <CheckCircle size={18} /> Presença confirmada
+                      </div>
+                    ) : item.attendance_status === "ABSENT" ? (
+                      <div className="flex items-center gap-1.5 text-red-400 text-xs font-bold uppercase tracking-wider">
+                        <XCircle size={18} /> Falta
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5 text-[#ACDCEE]/70 text-xs font-bold uppercase tracking-wider">

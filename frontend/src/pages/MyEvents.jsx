@@ -180,12 +180,10 @@ export default function MyEvents() {
             {events.map((event) => {
               const statusCfg =
                 STATUS_CONFIG[event.status] || STATUS_CONFIG.PENDING;
-              const isPast = new Date(event.event_date) < new Date();
-
               return (
                 <div
                   key={event.id}
-                  className={`bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl rounded-2xl p-5 border border-b-black/20 border-r-black/20 border-t-white/20 border-l-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.15)] transition-all duration-300 ${isPast ? "opacity-60" : ""}`}
+                  className={`bg-gradient-to-r from-white/10 to-transparent backdrop-blur-xl rounded-2xl p-5 border border-b-black/20 border-r-black/20 border-t-white/20 border-l-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.15)] transition-all duration-300 ${event.is_finished ? "opacity-60" : ""}`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                     <div className="flex-grow min-w-0">
@@ -203,7 +201,7 @@ export default function MyEvents() {
                             {event.category}
                           </span>
                         )}
-                        {isPast && (
+                        {event.is_finished && (
                           <span className="text-[10px] font-bold uppercase tracking-widest text-[#F0FBFF]/50 bg-white/5 px-2.5 py-1 rounded-md">
                             Encerrado
                           </span>
@@ -256,12 +254,16 @@ export default function MyEvents() {
                             : "Enviar para análise"}
                         </button>
                       )}
-                      <button
-                        onClick={() => navigate(`/eventos/${event.id}/editar`)}
-                        className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer text-[#ACDCEE]"
-                      >
-                        <Pencil size={14} /> Editar
-                      </button>
+                      {!event.is_finished && (
+                        <button
+                          onClick={() =>
+                            navigate(`/eventos/${event.id}/editar`)
+                          }
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer text-[#ACDCEE]"
+                        >
+                          <Pencil size={14} /> Editar
+                        </button>
+                      )}
 
                       {confirmDeleteId === event.id ? (
                         <div className="flex items-center gap-1.5">

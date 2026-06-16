@@ -124,7 +124,13 @@ export default function EventoDetalhe() {
     ? Math.min((registeredCount / event.capacity) * 100, 100)
     : 0;
   const statusConfig = event
-    ? STATUS_CONFIG[event.status] || STATUS_CONFIG.PENDING
+    ? event.is_finished
+      ? {
+          label: "Encerrado",
+          color: "text-[#F0FBFF]/50",
+          dot: "bg-[#F0FBFF]/40",
+        }
+      : STATUS_CONFIG[event.status] || STATUS_CONFIG.PENDING
     : STATUS_CONFIG.PENDING;
 
   return (
@@ -213,7 +219,7 @@ export default function EventoDetalhe() {
             {/* Organizer / Admin actions */}
             {(isOwner || isAdmin) && (
               <div className="flex flex-wrap gap-3 mb-8">
-                {isOwner && (
+                {isOwner && !event.is_finished && (
                   <button
                     onClick={() => navigate(`/eventos/${id}/editar`)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all cursor-pointer text-[#ACDCEE]"

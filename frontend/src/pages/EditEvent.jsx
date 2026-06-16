@@ -41,6 +41,8 @@ export default function EditEvent() {
 
         if (ev.organizer_id !== user.id) {
           setError("Apenas o organizador pode editar este evento.");
+        } else if (ev.is_finished) {
+          setError("Não é possível editar um evento que já foi encerrado.");
         }
       })
       .catch(() => setError("Erro ao carregar evento."))
