@@ -61,7 +61,7 @@ export default function ManageEvents() {
 
   useEffect(() => {
     api
-      .get("/events/")
+      .get("/events/?page_size=1000")
       .then((res) => setEvents(res.data.results || res.data))
       .catch(() => {})
       .finally(() => setLoading(false));

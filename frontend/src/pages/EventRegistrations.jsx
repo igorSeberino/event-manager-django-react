@@ -36,7 +36,7 @@ export default function EventRegistrations() {
   useEffect(() => {
     Promise.all([
       api.get(`/events/${id}/`),
-      api.get(`/registrations/?event=${id}`),
+      api.get(`/registrations/?event=${id}&page_size=1000`),
     ])
       .then(([eventRes, regsRes]) => {
         setEvent(eventRes.data);

@@ -58,7 +58,7 @@ export default function MyEvents() {
   useEffect(() => {
     if (!user) return;
     api
-      .get(`/events/?organizer=${user.id}`)
+      .get(`/events/?organizer=${user.id}&page_size=1000`)
       .then((res) => {
         setEvents(res.data.results || res.data);
       })

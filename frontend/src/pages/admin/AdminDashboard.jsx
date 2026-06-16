@@ -21,7 +21,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      api.get("/events/"),
+      api.get("/events/?page_size=1000"),
       api.get("/users/"),
       api.get("/registrations/"),
       api.get("/categories/"),

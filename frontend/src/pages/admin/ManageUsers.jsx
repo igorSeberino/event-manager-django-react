@@ -55,7 +55,7 @@ export default function ManageUsers() {
 
   useEffect(() => {
     api
-      .get("/users/")
+      .get("/users/?page_size=1000")
       .then((res) => setUsers(res.data.results || res.data))
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -52,8 +52,8 @@ export default function MinhasInscricoes() {
     }
 
     Promise.all([
-      api.get(`/registrations/?user=${user.id}`),
-      api.get("/events/"),
+      api.get(`/registrations/?user=${user.id}&page_size=1000`),
+      api.get("/events/?page_size=1000"),
     ])
       .then(([regRes, evtRes]) => {
         const regs = regRes.data.results || regRes.data;

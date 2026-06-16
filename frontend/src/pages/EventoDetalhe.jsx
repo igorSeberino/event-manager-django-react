@@ -57,9 +57,11 @@ export default function EventoDetalhe() {
 
   useEffect(() => {
     const fetchEvent = api.get(`/events/${id}/`);
-    const fetchEventRegistrations = api.get(`/registrations/?event=${id}`);
+    const fetchEventRegistrations = api.get(
+      `/registrations/?event=${id}&page_size=1000`,
+    );
     const fetchMyRegistrations = user
-      ? api.get(`/registrations/?user=${user.id}`)
+      ? api.get(`/registrations/?user=${user.id}&page_size=1000`)
       : Promise.resolve(null);
 
     Promise.all([fetchEvent, fetchEventRegistrations, fetchMyRegistrations])
@@ -90,9 +92,7 @@ export default function EventoDetalhe() {
       });
     } catch (err) {
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.event?.[0] ||
-        "Erro ao realizar inscrição.";
+        err.response?.data?.error?.message || "Erro ao realizar inscrição.";
       setFeedbackMsg({ type: "error", text: msg });
     } finally {
       setRegistering(false);
