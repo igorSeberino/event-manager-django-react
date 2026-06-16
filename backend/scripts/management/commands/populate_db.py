@@ -209,189 +209,155 @@ class Command(BaseCommand):
         )
 
         # =========================
-        # Eventos
+        # Eventos (acadêmicos, na Católica de Santa Catarina)
         # =========================
+        # (título, descrição) — todos ocorrem em salas da instituição.
         eventos_data = [
             # Tecnologia
             (
-                "Tech Summit Brasil 2026",
-                "O maior encontro de tecnologia do país, reunindo profissionais e entusiastas para três dias de palestras, workshops e networking.",
-                "Centro de Convenções Anhembi, São Paulo",
+                "Minicurso de Python para Iniciantes",
+                "Introdução à lógica de programação e à linguagem Python, com exercícios práticos no laboratório.",
             ),
             (
-                "Workshop Fullstack React + Django",
-                "Construa uma aplicação completa do zero usando React no frontend e Django REST Framework no backend.",
-                "Hub de Inovação, Sala 305, Belo Horizonte",
+                "Workshop de Desenvolvimento Web com React",
+                "Construa uma interface moderna do zero usando React, componentes e consumo de APIs.",
             ),
             (
-                "Imersão em Inteligência Artificial",
-                "Três dias intensivos explorando machine learning, deep learning e IA generativa com casos práticos do mercado.",
-                "Auditório Principal da UNICAMP, Campinas",
+                "Palestra: Inteligência Artificial no Dia a Dia",
+                "Como os modelos de IA já fazem parte da rotina e o que esperar dos próximos anos.",
             ),
             (
-                "Hackathon Open Source",
-                "48 horas de desenvolvimento colaborativo em projetos open source. Premiação para as melhores contribuições.",
-                "Google for Startups, São Paulo",
+                "Semana Acadêmica de Engenharia de Software",
+                "Palestras e oficinas sobre boas práticas, testes e arquitetura de sistemas.",
             ),
             (
-                "DevOps na Prática",
-                "Workshop hands-on sobre CI/CD, containers, Kubernetes e observabilidade em ambientes de produção.",
-                "Sala de Treinamento TechCorp, Curitiba",
+                "Oficina de Git e GitHub",
+                "Versionamento de código, fluxo de trabalho em equipe e contribuição em projetos.",
             ),
             (
-                "Conferência Python Brasil",
-                "Edição anual da maior conferência de Python da América Latina com trilhas para iniciantes e avançados.",
-                "Centro de Eventos da PUC, Porto Alegre",
+                "Introdução à Ciência de Dados",
+                "Coleta, limpeza e visualização de dados utilizando ferramentas open source.",
             ),
             (
-                "Meetup de Cibersegurança",
-                "Encontro mensal para discutir vulnerabilidades recentes, melhores práticas de segurança e CTF ao vivo.",
-                "Espaço de Coworking WeWork, Rio de Janeiro",
+                "Palestra de Cibersegurança e Boas Práticas",
+                "Senhas, phishing e proteção de dados pessoais no ambiente acadêmico e profissional.",
             ),
             (
-                "Cloud Computing Summit",
-                "Arquiteturas serverless, multi-cloud e estratégias de migração com cases de grandes empresas brasileiras.",
-                "Hotel Intercontinental, São Paulo",
+                "Workshop de Banco de Dados e SQL",
+                "Modelagem relacional e consultas práticas sobre um banco de dados real.",
             ),
             (
-                "Mobile Dev Conference",
-                "Flutter, React Native e desenvolvimento nativo: tendências e melhores práticas para apps modernos.",
-                "Teatro Municipal, Florianópolis",
+                "Bate-papo sobre Carreira em TI",
+                "Mercado de trabalho, estágios e primeiros passos na área de tecnologia.",
             ),
             (
-                "Data Engineering Week",
-                "Pipelines de dados, data lakes, streaming e governança de dados em escala empresarial.",
-                "Centro de Convenções Ulysses Guimarães, Brasília",
+                "Minicurso de Desenvolvimento Mobile",
+                "Primeiros passos no desenvolvimento de aplicativos para dispositivos móveis.",
             ),
             (
-                "Frontend Masters Live",
-                "CSS moderno, performance web, acessibilidade e as últimas novidades do ecossistema JavaScript.",
-                "Sala 201, FIAP, São Paulo",
+                "Oficina de Cloud Computing",
+                "Conceitos de nuvem, contêineres e implantação de aplicações.",
             ),
             (
-                "API Design Workshop",
-                "REST, GraphQL e gRPC: quando usar cada um, design patterns e versionamento de APIs.",
-                "Hub de Tecnologia, Recife",
+                "Hackathon Acadêmico Católica SC",
+                "Maratona de programação de um dia para resolver desafios reais propostos por empresas parceiras.",
             ),
             # Saúde
             (
                 "Semana da Saúde Integral",
-                "Programação completa sobre bem-estar físico e mental com profissionais renomados.",
-                "Parque Municipal, Belo Horizonte",
+                "Programação sobre bem-estar físico e mental para a comunidade acadêmica.",
             ),
             (
-                "Congresso de Nutrição Esportiva",
-                "Estratégias nutricionais para atletas e praticantes de atividade física de todos os níveis.",
-                "Centro de Convenções, Salvador",
+                "Palestra de Nutrição e Rotina Estudantil",
+                "Alimentação equilibrada e energia para a maratona de estudos e provas.",
             ),
             (
-                "Workshop de Mindfulness",
-                "Técnicas práticas de meditação e atenção plena para redução de estresse no ambiente de trabalho.",
-                "Espaço Zen, Vila Madalena, São Paulo",
+                "Oficina de Mindfulness e Controle da Ansiedade",
+                "Técnicas de respiração e atenção plena para reduzir o estresse acadêmico.",
             ),
             (
-                "Simpósio de Saúde Mental no Trabalho",
-                "Burnout, ansiedade e depressão: prevenção e manejo no contexto corporativo.",
-                "Auditório da FMUSP, São Paulo",
+                "Roda de Conversa sobre Saúde Mental",
+                "Espaço de acolhimento sobre ansiedade, burnout e equilíbrio emocional.",
             ),
             (
-                "Jornada de Fisioterapia Desportiva",
-                "Prevenção de lesões, reabilitação e performance esportiva com abordagens baseadas em evidência.",
-                "Ginásio Poliesportivo, Curitiba",
+                "Jornada de Fisioterapia e Ergonomia",
+                "Prevenção de lesões e postura correta no estudo e no trabalho.",
             ),
             (
-                "Conferência de Enfermagem",
-                "Inovações tecnológicas na enfermagem e o papel do enfermeiro na saúde digital.",
-                "Centro de Eventos, Goiânia",
+                "Palestra de Primeiros Socorros",
+                "Noções básicas de primeiros socorros para situações do cotidiano.",
             ),
             # Negócios
             (
-                "Startup Weekend Belo Horizonte",
-                "54 horas para transformar uma ideia em um negócio viável. Mentoria, pitch e validação.",
-                "SEED-MG, Belo Horizonte",
+                "Workshop de Empreendedorismo Universitário",
+                "Da ideia ao primeiro cliente: validação de negócios para estudantes.",
             ),
             (
-                "Finanças para Desenvolvedores",
-                "Educação financeira, investimentos e planejamento de carreira para profissionais de tecnologia.",
-                "Sala 101, B3 Educação, São Paulo",
+                "Palestra de Educação Financeira",
+                "Organização do orçamento, investimentos iniciais e planejamento de carreira.",
             ),
             (
-                "Marketing Digital Summit",
-                "SEO, tráfego pago, growth hacking e estratégias de conteúdo que funcionam em 2026.",
-                "Hotel Copacabana Palace, Rio de Janeiro",
+                "Oficina de Marketing Digital",
+                "Conteúdo, redes sociais e divulgação para projetos e pequenos negócios.",
             ),
             (
-                "Liderança e Gestão Ágil",
-                "Frameworks ágeis aplicados à gestão de pessoas e times de alta performance.",
-                "Espaço de Eventos InovaBH, Belo Horizonte",
+                "Minicurso de Gestão de Projetos",
+                "Métodos ágeis aplicados a projetos acadêmicos e profissionais.",
             ),
             (
-                "Empreendedorismo Social",
-                "Como criar negócios de impacto que geram valor social e financeiro.",
-                "Instituto Ayrton Senna, São Paulo",
+                "Bate-papo com Egressos Empreendedores",
+                "Histórias de ex-alunos que abriram o próprio negócio.",
             ),
             (
-                "Workshop de Vendas Consultivas",
-                "Técnicas de vendas B2B, qualificação de leads e construção de relacionamentos comerciais.",
-                "Sala de Treinamento, Porto Alegre",
+                "Palestra de Liderança e Trabalho em Equipe",
+                "Habilidades de comunicação e liderança para times de alta performance.",
             ),
             # Educação
             (
-                "Congresso Nacional de Educação",
-                "Políticas públicas, metodologias inovadoras e o futuro da educação brasileira.",
-                "Centro de Convenções, Brasília",
+                "Seminário de Metodologias Ativas de Ensino",
+                "Estratégias que colocam o estudante no centro do aprendizado.",
             ),
             (
-                "EAD em Foco",
-                "Plataformas, engajamento e avaliação: desafios e soluções para o ensino a distância.",
-                "Auditório da USP, São Paulo",
+                "Oficina de Produção de Trabalhos Acadêmicos",
+                "Normas, pesquisa e escrita científica para TCC e artigos.",
             ),
             (
-                "Educação STEAM na Prática",
-                "Integrando ciência, tecnologia, engenharia, artes e matemática no ensino fundamental.",
-                "Escola Parque, Rio de Janeiro",
+                "Palestra de Educação Inclusiva",
+                "Acessibilidade e práticas pedagógicas para uma educação para todos.",
             ),
             (
-                "Inclusão Digital na Educação",
-                "Tecnologias assistivas e estratégias para tornar a educação digital acessível a todos.",
-                "Centro Cultural, Recife",
+                "Minicurso de Oratória e Apresentações",
+                "Técnicas para falar em público e apresentar trabalhos com segurança.",
             ),
             # Ciências
             (
-                "Semana Acadêmica de Física",
-                "Palestras sobre astrofísica, mecânica quântica e as fronteiras da física contemporânea.",
-                "Instituto de Física da UFRJ, Rio de Janeiro",
+                "Semana Acadêmica de Ciências Exatas",
+                "Palestras sobre física, matemática aplicada e suas conexões com a tecnologia.",
             ),
             (
-                "Simpósio de Biotecnologia",
-                "Avanços em engenharia genética, bioinformática e aplicações industriais da biotecnologia.",
-                "Centro de Biociências da UFPE, Recife",
+                "Oficina de Matemática Aplicada",
+                "Modelagem e resolução de problemas reais com ferramentas matemáticas.",
             ),
             (
-                "Encontro de Matemática Aplicada",
-                "Modelagem matemática, otimização e aplicações em inteligência artificial e finanças.",
-                "IMPA, Rio de Janeiro",
+                "Palestra de Biotecnologia e Inovação",
+                "Avanços recentes em biotecnologia e suas aplicações no mercado.",
             ),
             # Artes e Cultura
             (
-                "Festival de Cinema Independente",
-                "Exibição e debate de curtas e longas-metragens de cineastas independentes brasileiros.",
-                "Cine Arte UFF, Niterói",
+                "Mostra de Cinema Universitário",
+                "Exibição e debate de curtas-metragens produzidos por estudantes.",
             ),
             (
-                "Workshop de Produção Musical",
-                "Do beat ao master: produção musical completa usando ferramentas profissionais e acessíveis.",
-                "Studio 47, São Paulo",
+                "Oficina de Produção Musical",
+                "Noções de gravação, edição e produção musical com ferramentas acessíveis.",
             ),
             (
-                "Feira Literária do Centro-Oeste",
-                "Lançamentos, mesas redondas com autores e oficinas de escrita criativa.",
-                "Centro Cultural Oscar Niemeyer, Goiânia",
+                "Sarau Literário Católica SC",
+                "Noite de leitura, poesia e música aberta à comunidade acadêmica.",
             ),
             (
-                "Mostra de Artes Visuais Contemporâneas",
-                "Exposição e palestras sobre arte digital, instalações interativas e arte urbana.",
-                "MAM, São Paulo",
+                "Exposição de Artes Visuais",
+                "Mostra de trabalhos de arte digital e ilustração dos estudantes.",
             ),
         ]
 
@@ -399,97 +365,142 @@ class Command(BaseCommand):
         for sub in subcategorias:
             sub_por_categoria.setdefault(sub.category.name, []).append(sub)
 
-        # Mapeia cada evento para a categoria mais adequada
+        # Cada evento mapeado para a categoria mais adequada
         categoria_evento = {
-            0: "Tecnologia",
-            1: "Tecnologia",
-            2: "Tecnologia",
-            3: "Tecnologia",
-            4: "Tecnologia",
-            5: "Tecnologia",
-            6: "Tecnologia",
-            7: "Tecnologia",
-            8: "Tecnologia",
-            9: "Tecnologia",
-            10: "Tecnologia",
-            11: "Tecnologia",
-            12: "Saúde",
-            13: "Saúde",
-            14: "Saúde",
-            15: "Saúde",
-            16: "Saúde",
-            17: "Saúde",
-            18: "Negócios",
-            19: "Negócios",
-            20: "Negócios",
-            21: "Negócios",
-            22: "Negócios",
-            23: "Negócios",
-            24: "Educação",
-            25: "Educação",
-            26: "Educação",
-            27: "Educação",
-            28: "Ciências",
-            29: "Ciências",
-            30: "Ciências",
-            31: "Artes e Cultura",
-            32: "Artes e Cultura",
-            33: "Artes e Cultura",
-            34: "Artes e Cultura",
+            **{i: "Tecnologia" for i in range(0, 12)},
+            **{i: "Saúde" for i in range(12, 18)},
+            **{i: "Negócios" for i in range(18, 24)},
+            **{i: "Educação" for i in range(24, 28)},
+            **{i: "Ciências" for i in range(28, 31)},
+            **{i: "Artes e Cultura" for i in range(31, 35)},
         }
 
-        eventos = []
-        statuses = ["APPROVED"] * 7 + ["PENDING"] * 2 + ["REJECTED"]
+        # Salas da Católica SC: blocos A–I, com quantidades diferentes de salas.
+        salas_por_bloco = {
+            "A": 8,
+            "B": 6,
+            "C": 4,
+            "D": 10,
+            "E": 5,
+            "F": 3,
+            "G": 6,
+            "H": 14,
+            "I": 2,
+        }
+        salas_ocupadas = set()
 
-        for i, (titulo, descricao, local) in enumerate(eventos_data):
-            cat_name = categoria_evento[i]
-            cat = categorias[cat_name]
-            sub = random.choice(sub_por_categoria[cat_name])
+        def gerar_sala(dia):
+            # Evita duas reservas da mesma sala no mesmo dia.
+            for _ in range(200):
+                bloco = random.choice(list(salas_por_bloco.keys()))
+                numero = random.randint(1, salas_por_bloco[bloco])
+                sala = f"{bloco}{numero:02d}"
+                if (sala, dia) not in salas_ocupadas:
+                    salas_ocupadas.add((sala, dia))
+                    return sala
+            return sala
+
+        motivos_rejeicao = [
+            "Descrição insuficiente. Detalhe melhor os objetivos e a programação do evento.",
+            "A capacidade informada excede a lotação da sala solicitada.",
+            "Conflito de horário com outro evento já aprovado para a mesma sala.",
+            "Data muito próxima. Reenvie com pelo menos duas semanas de antecedência.",
+            "Faltam informações sobre o responsável e os materiais necessários.",
+            "O tema precisa de melhor alinhamento com as áreas acadêmicas da instituição.",
+        ]
+
+        # Define de forma controlada quais eventos já ocorreram (~40%).
+        indices = list(range(len(eventos_data)))
+        random.shuffle(indices)
+        passados = set(indices[: int(len(eventos_data) * 0.4)])
+
+        agora = timezone.now()
+        horarios = [8, 10, 13, 14, 16, 19]
+
+        eventos_meta = []  # (evento, is_past)
+
+        for i, (titulo, descricao) in enumerate(eventos_data):
+            cat = categorias[categoria_evento[i]]
+            sub = random.choice(sub_por_categoria[categoria_evento[i]])
+            is_past = i in passados
+
+            # Coerência temporal x status:
+            # - eventos passados já aconteceram, portanto estão aprovados;
+            # - eventos futuros podem estar aprovados, pendentes ou rejeitados.
+            if is_past:
+                status = Event.Status.APPROVED
+                base = agora - timezone.timedelta(days=random.randint(5, 150))
+            else:
+                status = random.choices(
+                    [
+                        Event.Status.APPROVED,
+                        Event.Status.PENDING,
+                        Event.Status.REJECTED,
+                    ],
+                    weights=[6, 3, 2],
+                )[0]
+                base = agora + timezone.timedelta(days=random.randint(3, 120))
+
+            event_date = base.replace(
+                hour=random.choice(horarios),
+                minute=random.choice([0, 30]),
+                second=0,
+                microsecond=0,
+            )
 
             evento = Event.objects.create(
                 title=titulo,
                 description=descricao,
-                location=local,
-                event_date=timezone.now()
-                + timezone.timedelta(days=random.randint(3, 90)),
-                capacity=random.randint(30, 500),
-                status=random.choice(statuses),
+                location=f"Sala {gerar_sala(event_date.date())} - Católica SC",
+                event_date=event_date,
+                capacity=random.randint(20, 60),
+                status=status,
                 organizer=random.choice(organizadores),
                 category=cat,
                 subcategory=sub,
+                rejection_reason=(
+                    random.choice(motivos_rejeicao)
+                    if status == Event.Status.REJECTED
+                    else ""
+                ),
             )
-            eventos.append(evento)
+            eventos_meta.append((evento, is_past))
 
-        self.stdout.write(f"  {len(eventos)} eventos")
+        aprovados = sum(1 for e, _ in eventos_meta if e.status == Event.Status.APPROVED)
+        pendentes = sum(1 for e, _ in eventos_meta if e.status == Event.Status.PENDING)
+        rejeitados = sum(
+            1 for e, _ in eventos_meta if e.status == Event.Status.REJECTED
+        )
+        self.stdout.write(
+            f"  {len(eventos_meta)} eventos "
+            f"({aprovados} aprovados, {pendentes} pendentes, {rejeitados} rejeitados; "
+            f"{len(passados)} já realizados)"
+        )
 
         # =========================
-        # Inscrições
+        # Inscrições (somente em eventos aprovados)
         # =========================
-        eventos_aprovados = [e for e in eventos if e.status == "APPROVED"]
         registros = []
-        pares_existentes = set()
+        for evento, is_past in eventos_meta:
+            if evento.status != Event.Status.APPROVED:
+                continue
 
-        for user in participantes:
-            qtd = random.randint(1, 6)
-            eventos_usuario = random.sample(
-                eventos_aprovados, k=min(qtd, len(eventos_aprovados))
-            )
+            # Eventos já realizados costumam estar mais cheios; os futuros variam mais.
+            if is_past:
+                minimo = max(1, int(evento.capacity * 0.5))
+            else:
+                minimo = max(1, int(evento.capacity * 0.15))
+            qtd = min(random.randint(minimo, evento.capacity), len(participantes))
 
-            for evento in eventos_usuario:
-                par = (user.pk, evento.pk)
-                if par in pares_existentes:
-                    continue
-                pares_existentes.add(par)
-
+            for user in random.sample(participantes, qtd):
+                # Check-in só existe para eventos que já aconteceram.
+                check_in = is_past and random.random() < 0.75
                 registros.append(
-                    Registration(
-                        user=user,
-                        event=evento,
-                        check_in=random.random() < 0.3,
-                    )
+                    Registration(user=user, event=evento, check_in=check_in)
                 )
 
         Registration.objects.bulk_create(registros)
 
-        self.stdout.write(f"  {len(registros)} inscrições")
+        checkins = sum(1 for r in registros if r.check_in)
+        self.stdout.write(f"  {len(registros)} inscrições ({checkins} check-ins)")
         self.stdout.write(self.style.SUCCESS("Banco populado com sucesso!"))
