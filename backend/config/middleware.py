@@ -5,6 +5,8 @@ from django.conf import settings
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
+from config.cookies import auth_cookie_kwargs
+
 
 class TokenRefreshMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
@@ -34,14 +36,13 @@ class TokenRefreshMiddleware(MiddlewareMixin):
             response.set_cookie(
                 key="access_token",
                 value=request.new_token,
-                httponly=True,
-                secure=True,
-                samesite="None",
+                **auth_cookie_kwargs(),
             )
 
         if hasattr(request, "expired_session"):
-            response.delete_cookie("access_token")
-            response.delete_cookie("refresh_token")
+            samesite = auth_cookie_kwargs()["samesite"]
+            response.delete_cookie("access_token", samesite=samesite)
+            response.delete_cookie("refresh_token", samesite=samesite)
 
         return response
 

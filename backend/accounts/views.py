@@ -4,6 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+from config.cookies import auth_cookie_kwargs
+
 from . import services
 from .models import User
 from .permissions import IsOwnerOrAdmin
@@ -61,19 +63,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             status=status.HTTP_200_OK,
         )
 
+        cookie_kwargs = auth_cookie_kwargs()
         response.set_cookie(
             key="access_token",
             value=tokens["access"],
-            httponly=True,
-            secure=True,
-            samesite="None",
+            **cookie_kwargs,
         )
         response.set_cookie(
             key="refresh_token",
             value=tokens["refresh"],
-            httponly=True,
-            secure=True,
-            samesite="None",
+            **cookie_kwargs,
         )
 
         return response
@@ -82,7 +81,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    samesite = auth_cookie_kwargs()["samesite"]
     response = Response({"detail": "Logout realizado com sucesso."})
-    response.delete_cookie("access_token", samesite="None")
-    response.delete_cookie("refresh_token", samesite="None")
+    response.delete_cookie("access_token", samesite=samesite)
+    response.delete_cookie("refresh_token", samesite=samesite)
     return response
