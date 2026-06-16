@@ -82,8 +82,12 @@ export default function Home() {
     (_, i) => i + 1,
   );
 
+  const approvedEvents = featuredEvents.filter(
+    (ev) => ev.status === "APPROVED",
+  );
+
   const eventDaysSet = new Set(
-    featuredEvents
+    approvedEvents
       .filter((ev) => {
         if (!ev.event_date) return false;
         const [year, month] = ev.event_date.split("T")[0].split("-");
@@ -98,7 +102,7 @@ export default function Home() {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const displayedEvents = [...featuredEvents]
+  const displayedEvents = [...approvedEvents]
     .filter((ev) => ev.event_date && new Date(ev.event_date) >= todayStart)
     .sort(
       (a, b) =>
