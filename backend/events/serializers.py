@@ -22,6 +22,7 @@ class EventSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     registrations_count = serializers.SerializerMethodField()
+    is_finished = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Event
@@ -33,8 +34,9 @@ class EventSerializer(serializers.ModelSerializer):
             "category_id",
             "subcategory_id",
             "registrations_count",
+            "is_finished",
         ]
-        read_only_fields = ["id", "status", "rejection_reason"]
+        read_only_fields = ["id", "status", "rejection_reason", "closed_at"]
 
     def get_registrations_count(self, obj):
         count = getattr(obj, "registrations_count", None)

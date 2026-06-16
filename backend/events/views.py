@@ -30,7 +30,13 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ("approve", "reject"):
             return [IsAdminUser()]
-        if self.action in ("update", "partial_update", "destroy", "resubmit"):
+        if self.action in (
+            "update",
+            "partial_update",
+            "destroy",
+            "resubmit",
+            "close",
+        ):
             return [IsAuthenticated(), IsEventOwner()]
         if self.action == "create":
             return [IsOrganizerOrAdmin()]
@@ -88,6 +94,13 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"])
     def resubmit(self, request, *args, **kwargs):
         event = services.resubmit_event(
+            instance=self.get_object(), acting_user=request.user
+        )
+        return Response(self.get_serializer(event).data)
+
+    @action(detail=True, methods=["post"])
+    def close(self, request, *args, **kwargs):
+        event = services.close_event(
             instance=self.get_object(), acting_user=request.user
         )
         return Response(self.get_serializer(event).data)

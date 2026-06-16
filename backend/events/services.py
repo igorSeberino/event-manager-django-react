@@ -59,6 +59,11 @@ def update_event(*, instance: Event, acting_user: User, **fields) -> Event:
             "Apenas o organizador do evento pode editá-lo.",
             code="event_update_not_allowed",
         )
+    if instance.is_finished:
+        raise ValidationError(
+            "Não é possível editar um evento que já foi realizado.",
+            code="event_already_finished",
+        )
     if "event_date" in fields:
         _validate_event_date(fields["event_date"])
     for attr, value in fields.items():
@@ -109,9 +114,40 @@ def resubmit_event(*, instance: Event, acting_user: User) -> Event:
             "Apenas eventos rejeitados podem ser reenviados para análise.",
             code="event_not_rejected",
         )
+    if instance.is_finished:
+        raise ValidationError(
+            "Não é possível reenviar um evento que já foi realizado.",
+            code="event_already_finished",
+        )
     instance.status = Event.Status.PENDING
     instance.rejection_reason = ""
     instance.save()
+    return instance
+
+
+def close_event(*, instance: Event, acting_user: User) -> Event:
+    if acting_user != instance.organizer:
+        raise PermissionDenied(
+            "Apenas o organizador do evento pode encerrá-lo.",
+            code="event_close_not_allowed",
+        )
+    if instance.status != Event.Status.APPROVED:
+        raise ValidationError(
+            "Apenas eventos aprovados podem ser encerrados.",
+            code="event_not_approved",
+        )
+    if instance.is_finished:
+        raise ValidationError(
+            "O evento já foi encerrado.",
+            code="event_already_finished",
+        )
+    if instance.event_date > timezone.now():
+        raise ValidationError(
+            "O evento ainda não começou; não é possível encerrá-lo.",
+            code="event_not_started",
+        )
+    instance.closed_at = timezone.now()
+    instance.save(update_fields=["closed_at"])
     return instance
 
 

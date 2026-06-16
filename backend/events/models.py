@@ -19,6 +19,7 @@ class Event(models.Model):
         max_length=10, choices=Status.choices, default=Status.PENDING
     )
     rejection_reason = models.TextField(blank=True, default="")
+    closed_at = models.DateTimeField(null=True, blank=True)
     organizer = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, related_name="events"
     )
@@ -36,6 +37,11 @@ class Event(models.Model):
         null=True,
         blank=True,
     )
+
+    @property
+    def is_finished(self):
+        """Evento encerrado manualmente pelo organizador."""
+        return self.closed_at is not None
 
     def __str__(self):
         return self.title
