@@ -38,7 +38,7 @@ const STATUS_CONFIG = {
     dot: "bg-emerald-400",
   },
   PENDING: { label: "Pendente", color: "text-amber-400", dot: "bg-amber-400" },
-  REJECTED: { label: "Encerrado", color: "text-red-400", dot: "bg-red-400" },
+  REJECTED: { label: "Rejeitado", color: "text-red-400", dot: "bg-red-400" },
 };
 
 export default function EventoDetalhe() {
@@ -116,6 +116,8 @@ export default function EventoDetalhe() {
 
   const isPast = event?.event_date && new Date(event.event_date) < new Date();
   const canRegister = user && event?.status === "APPROVED" && !isPast;
+  const isOwner = !!user && event?.organizer_id === user.id;
+  const isAdmin = user?.role === "ADMIN";
   const registeredCount = registrations.length;
   const spotsLeft = event ? event.capacity - registeredCount : 0;
   const occupancyPercent = event
@@ -209,23 +211,24 @@ export default function EventoDetalhe() {
             </div>
 
             {/* Organizer / Admin actions */}
-            {user &&
-              (user.role === "ADMIN" || event.organizer === user.name) && (
-                <div className="flex flex-wrap gap-3 mb-8">
+            {(isOwner || isAdmin) && (
+              <div className="flex flex-wrap gap-3 mb-8">
+                {isOwner && (
                   <button
                     onClick={() => navigate(`/eventos/${id}/editar`)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all cursor-pointer text-[#ACDCEE]"
                   >
                     <Pencil size={15} /> Editar Evento
                   </button>
-                  <button
-                    onClick={() => navigate(`/eventos/${id}/inscricoes`)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all cursor-pointer text-[#ACDCEE]"
-                  >
-                    <ClipboardList size={15} /> Gerenciar Inscritos
-                  </button>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => navigate(`/eventos/${id}/inscricoes`)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all cursor-pointer text-[#ACDCEE]"
+                >
+                  <ClipboardList size={15} /> Gerenciar Inscritos
+                </button>
+              </div>
+            )}
 
             {/* Registration CTA + capacity — prominent section */}
             <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl px-6 py-5 mb-10">

@@ -39,8 +39,8 @@ export default function EditEvent() {
           subcategory_id: matchedSubcategory?.id || "",
         });
 
-        if (user.role !== "ADMIN" && ev.organizer !== user.name) {
-          setError("Você não tem permissão para editar este evento.");
+        if (ev.organizer_id !== user.id) {
+          setError("Apenas o organizador pode editar este evento.");
         }
       })
       .catch(() => setError("Erro ao carregar evento."))
