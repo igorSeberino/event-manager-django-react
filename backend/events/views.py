@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -9,9 +10,11 @@ from .serializers import EventSerializer, CategorySerializer, SubCategorySeriali
 
 
 class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.select_related(
-        "category", "subcategory", "organizer"
-    ).all()
+    queryset = (
+        Event.objects.select_related("category", "subcategory", "organizer")
+        .annotate(registrations_count=Count("registration"))
+        .all()
+    )
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOrganizerOrAdmin, IsOwnerOrAdmin]
     filterset_fields = ["status", "category", "subcategory", "organizer"]
@@ -23,6 +26,8 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        category = data.get("category")
+        subcategory = data.get("subcategory")
         event = services.create_event(
             title=data["title"],
             description=data["description"],
@@ -31,8 +36,8 @@ class EventViewSet(viewsets.ModelViewSet):
             capacity=data["capacity"],
             organizer=request.user,
             acting_user=request.user,
-            category_id=data.get("category_id"),
-            subcategory_id=data.get("subcategory_id"),
+            category_id=category.id if category else None,
+            subcategory_id=subcategory.id if subcategory else None,
             status=data.get("status", Event.Status.PENDING),
         )
         return Response(self.get_serializer(event).data, status=status.HTTP_201_CREATED)
@@ -58,6 +63,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser]
+    pagination_class = None
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -88,6 +94,7 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
     permission_classes = [IsAdminUser]
+    pagination_class = None
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

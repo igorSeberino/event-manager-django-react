@@ -6,6 +6,21 @@ class EventSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.name", read_only=True)
     subcategory = serializers.CharField(source="subcategory.name", read_only=True)
     organizer = serializers.CharField(source="organizer.name", read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all(),
+        source="subcategory",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    registrations_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -13,8 +28,17 @@ class EventSerializer(serializers.ModelSerializer):
             "category",
             "subcategory",
             "organizer",
+            "category_id",
+            "subcategory_id",
+            "registrations_count",
         ]
         read_only_fields = ["id"]
+
+    def get_registrations_count(self, obj):
+        count = getattr(obj, "registrations_count", None)
+        if count is not None:
+            return count
+        return obj.registration_set.count()
 
 
 class CategorySerializer(serializers.ModelSerializer):
