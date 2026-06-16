@@ -4,14 +4,14 @@ from rest_framework.response import Response
 
 from . import services
 from .models import Registration
-from .permissions import IsOwnerOrAdmin
+from .permissions import RegistrationPermission
 from .serializers import RegistrationSerializer
 
 
 class RegistrationViewSet(viewsets.ModelViewSet):
     queryset = Registration.objects.select_related("user", "event").all()
     serializer_class = RegistrationSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticatedOrReadOnly, RegistrationPermission]
     filterset_fields = ["event", "user"]
 
     def create(self, request, *args, **kwargs):
@@ -24,3 +24,16 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         return Response(
             self.get_serializer(registration).data, status=status.HTTP_201_CREATED
         )
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=kwargs.get("partial", False)
+        )
+        serializer.is_valid(raise_exception=True)
+        registration = services.set_check_in(
+            registration=instance,
+            acting_user=request.user,
+            check_in=serializer.validated_data.get("check_in", instance.check_in),
+        )
+        return Response(self.get_serializer(registration).data)
