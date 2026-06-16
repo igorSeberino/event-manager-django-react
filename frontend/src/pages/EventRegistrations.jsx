@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
 import {
@@ -25,6 +26,7 @@ function formatDate(dateString) {
 export default function EventRegistrations() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [event, setEvent] = useState(null);
   const [registrations, setRegistrations] = useState([]);
@@ -39,12 +41,17 @@ export default function EventRegistrations() {
       api.get(`/registrations/?event=${id}&page_size=1000`),
     ])
       .then(([eventRes, regsRes]) => {
-        setEvent(eventRes.data);
+        const ev = eventRes.data;
+        setEvent(ev);
+        if (user && ev.organizer_id !== user.id && user.role !== "ADMIN") {
+          setError("Apenas o organizador do evento pode gerenciar os inscritos.");
+          return;
+        }
         setRegistrations(regsRes.data.results || regsRes.data);
       })
       .catch(() => setError("Erro ao carregar dados."))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, user]);
 
   const toggleCheckIn = async (reg) => {
     setTogglingId(reg.id);
