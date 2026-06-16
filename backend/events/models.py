@@ -18,6 +18,7 @@ class Event(models.Model):
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.PENDING
     )
+    rejection_reason = models.TextField(blank=True, default="")
     organizer = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, related_name="events"
     )

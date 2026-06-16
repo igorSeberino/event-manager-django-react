@@ -53,25 +53,64 @@ def create_event(
     return event
 
 
-def update_event(
-    *, instance: Event, acting_user: User, status: str | None = None, **fields
-) -> Event:
-    if acting_user != instance.organizer and acting_user.role != User.Role.ADMIN:
+def update_event(*, instance: Event, acting_user: User, **fields) -> Event:
+    if acting_user != instance.organizer:
         raise PermissionDenied(
-            "Apenas o organizador do evento ou um administrador podem atualizá-lo.",
+            "Apenas o organizador do evento pode editá-lo.",
             code="event_update_not_allowed",
-        )
-    if status is not None and acting_user.role != User.Role.ADMIN:
-        raise PermissionDenied(
-            "Apenas administradores podem alterar o status do evento.",
-            code="event_status_change_not_allowed",
         )
     if "event_date" in fields:
         _validate_event_date(fields["event_date"])
     for attr, value in fields.items():
         setattr(instance, attr, value)
-    if status is not None:
-        instance.status = status
+    instance.save()
+    return instance
+
+
+def approve_event(*, instance: Event, acting_user: User) -> Event:
+    if acting_user.role != User.Role.ADMIN:
+        raise PermissionDenied(
+            "Apenas administradores podem aprovar eventos.",
+            code="event_moderation_admin_only",
+        )
+    instance.status = Event.Status.APPROVED
+    instance.rejection_reason = ""
+    instance.save()
+    return instance
+
+
+def reject_event(*, instance: Event, acting_user: User, reason: str) -> Event:
+    if acting_user.role != User.Role.ADMIN:
+        raise PermissionDenied(
+            "Apenas administradores podem rejeitar eventos.",
+            code="event_moderation_admin_only",
+        )
+    reason = (reason or "").strip()
+    if not reason:
+        raise ValidationError(
+            "Informe o motivo da rejeição para o organizador.",
+            code="rejection_reason_required",
+            field="rejection_reason",
+        )
+    instance.status = Event.Status.REJECTED
+    instance.rejection_reason = reason
+    instance.save()
+    return instance
+
+
+def resubmit_event(*, instance: Event, acting_user: User) -> Event:
+    if acting_user != instance.organizer:
+        raise PermissionDenied(
+            "Apenas o organizador do evento pode reenviá-lo para análise.",
+            code="event_resubmit_not_allowed",
+        )
+    if instance.status != Event.Status.REJECTED:
+        raise ValidationError(
+            "Apenas eventos rejeitados podem ser reenviados para análise.",
+            code="event_not_rejected",
+        )
+    instance.status = Event.Status.PENDING
+    instance.rejection_reason = ""
     instance.save()
     return instance
 

@@ -17,15 +17,13 @@ class IsOrganizerOrAdmin(BasePermission):
         )
 
 
-class IsOwnerOrAdmin(BasePermission):
-    message = "Apenas o organizador do evento ou administradores podem editar ou excluir este evento."
+class IsEventOwner(BasePermission):
+    message = "Apenas o organizador do evento pode editar ou excluir este evento."
 
     def has_object_permission(self, request, view, obj):
         if request.method in ("GET", "HEAD", "OPTIONS"):
             return True
-        return request.user.is_authenticated and (
-            obj.organizer == request.user or request.user.role == User.Role.ADMIN
-        )
+        return request.user.is_authenticated and obj.organizer == request.user
 
 
 class IsAdminUser(BasePermission):

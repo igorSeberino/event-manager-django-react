@@ -1,11 +1,16 @@
 from django.db.models import Count
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from . import services
 from .models import Event, Category, SubCategory
-from .permissions import IsOrganizerOrAdmin, IsOwnerOrAdmin, IsAdminUser
+from .permissions import IsOrganizerOrAdmin, IsEventOwner, IsAdminUser
 from .serializers import EventSerializer, CategorySerializer, SubCategorySerializer
 
 
@@ -16,11 +21,20 @@ class EventViewSet(viewsets.ModelViewSet):
         .all()
     )
     serializer_class = EventSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOrganizerOrAdmin, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filterset_fields = ["status", "category", "subcategory", "organizer"]
     search_fields = ["title", "description", "location"]
     ordering_fields = ["event_date", "title", "capacity"]
     ordering = ["-event_date"]
+
+    def get_permissions(self):
+        if self.action in ("approve", "reject"):
+            return [IsAdminUser()]
+        if self.action in ("update", "partial_update", "destroy", "resubmit"):
+            return [IsAuthenticated(), IsEventOwner()]
+        if self.action == "create":
+            return [IsOrganizerOrAdmin()]
+        return [AllowAny()]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -48,13 +62,33 @@ class EventViewSet(viewsets.ModelViewSet):
             instance, data=request.data, partial=kwargs.get("partial", False)
         )
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        event_status = data.pop("status", None)
         event = services.update_event(
             instance=instance,
             acting_user=request.user,
-            status=event_status,
-            **data,
+            **serializer.validated_data,
+        )
+        return Response(self.get_serializer(event).data)
+
+    @action(detail=True, methods=["post"])
+    def approve(self, request, *args, **kwargs):
+        event = services.approve_event(
+            instance=self.get_object(), acting_user=request.user
+        )
+        return Response(self.get_serializer(event).data)
+
+    @action(detail=True, methods=["post"])
+    def reject(self, request, *args, **kwargs):
+        event = services.reject_event(
+            instance=self.get_object(),
+            acting_user=request.user,
+            reason=request.data.get("reason", ""),
+        )
+        return Response(self.get_serializer(event).data)
+
+    @action(detail=True, methods=["post"])
+    def resubmit(self, request, *args, **kwargs):
+        event = services.resubmit_event(
+            instance=self.get_object(), acting_user=request.user
         )
         return Response(self.get_serializer(event).data)
 

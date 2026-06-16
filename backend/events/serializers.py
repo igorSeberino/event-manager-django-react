@@ -6,6 +6,7 @@ class EventSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.name", read_only=True)
     subcategory = serializers.CharField(source="subcategory.name", read_only=True)
     organizer = serializers.CharField(source="organizer.name", read_only=True)
+    organizer_id = serializers.UUIDField(source="organizer.id", read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source="category",
@@ -28,11 +29,12 @@ class EventSerializer(serializers.ModelSerializer):
             "category",
             "subcategory",
             "organizer",
+            "organizer_id",
             "category_id",
             "subcategory_id",
             "registrations_count",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "status", "rejection_reason"]
 
     def get_registrations_count(self, obj):
         count = getattr(obj, "registrations_count", None)
