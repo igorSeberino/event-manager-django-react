@@ -5,15 +5,15 @@ LAYOUT_TOP_DOWN()
 
 title [Nível 1] Contexto do Sistema - Gerenciamento de Eventos Acadêmicos
 
-Person(admin, "Administrador", "Gerencia o sistema, aprova eventos e gerencia usuários")
-Person(organizer, "Organizador", "Cria e gerencia eventos acadêmicos como palestras, workshops e minicursos")
-Person(participant, "Participante", "Visualiza eventos disponíveis, realiza inscrição e registra presença")
+Person(admin, "Administrador", "Gerencia o sistema: aprova/rejeita eventos, gerencia usuários e categorias")
+Person(organizer, "Organizador", "Cria e gerencia eventos acadêmicos; gerencia inscrições e presença; encerra eventos")
+Person(participant, "Participante", "Visualiza eventos disponíveis, realiza inscrição e acompanha presença")
 
-System(eventSystem, "Sistema de Gerenciamento de Eventos Acadêmicos", "Centraliza o controle de eventos acadêmicos e inscrições em uma única plataforma web. Permite cadastro de usuários, criação de eventos, inscrição de participantes e controle de presença.")
+System(eventSystem, "Sistema de Gerenciamento de Eventos Acadêmicos", "Plataforma web que centraliza criação de eventos, fluxo de aprovação, inscrições e controle de presença.")
 
-Rel(admin, eventSystem, "Gerencia usuários, aprova/rejeita eventos")
-Rel(organizer, eventSystem, "Cria, edita, exclui eventos e visualiza participantes inscritos")
-Rel(participant, eventSystem, "Consulta eventos, realiza inscrição e check-in")
+Rel(admin, eventSystem, "Aprova/rejeita eventos, gerencia usuários e categorias")
+Rel(organizer, eventSystem, "Cria eventos, gerencia inscritos, realiza check-in e encerra eventos")
+Rel(participant, eventSystem, "Consulta eventos, realiza inscrição e acompanha presença")
 @enduml
 
 @startuml C4_Containers
@@ -28,16 +28,16 @@ Person(organizer, "Organizador", "Cria e gerencia eventos acadêmicos")
 Person(participant, "Participante", "Visualiza eventos e se inscreve")
 
 System_Boundary(eventSystem, "Sistema de Gerenciamento de Eventos Acadêmicos") {
-    Container(spa, "Aplicação Frontend", "React, Tailwind CSS", "Interface responsiva do usuário. Consome a API REST para exibir dados e realizar operações.")
-    Container(api, "API Backend", "Django, Django REST Framework, Python", "Fornece a API REST com regras de negócio, autenticação, gerenciamento de eventos e inscrições.")
-    ContainerDb(db, "Banco de Dados", "MySQL", "Armazena dados de usuários, eventos e inscrições. Senhas armazenadas com criptografia.")
+    Container(spa, "Aplicação Frontend", "React 19, Vite, Tailwind CSS 4", "SPA com rotas protegidas por role. Consome a API REST via Axios com cookies de autenticação.")
+    Container(api, "API Backend", "Python 3.12, Django 6, Django REST Framework", "API REST com service layer, JWT via HttpOnly cookies, middleware de refresh automático de token e paginação configurável.")
+    ContainerDb(db, "Banco de Dados", "MySQL 8.0", "Armazena usuários, eventos, categorias, subcategorias e inscrições. Todas as PKs são UUID.")
 }
 
 Rel(admin, spa, "Acessa via navegador", "HTTPS")
 Rel(organizer, spa, "Acessa via navegador", "HTTPS")
 Rel(participant, spa, "Acessa via navegador", "HTTPS")
-Rel(spa, api, "Consome API", "HTTP/JSON")
-Rel(api, db, "Lê e escreve dados", "SQL / Django ORM")
+Rel(spa, api, "Requisições JSON com cookies JWT", "HTTP/REST")
+Rel(api, db, "Lê e escreve dados", "Django ORM / SQL")
 @enduml
 
 @startuml C4_Components_Backend
@@ -48,34 +48,43 @@ LAYOUT_TOP_DOWN()
 title [Nível 3] Diagrama de Componentes - Backend API (Django)
 
 Container_Boundary(api, "API Backend - Django REST Framework") {
-    Component(accountsViews, "Accounts Views", "Django REST Views", "Endpoints de cadastro de usuários, login, logout e gerenciamento de perfil")
-    Component(accountsSerializers, "Accounts Serializers", "DRF Serializers", "Serialização e validação dos dados de usuário")
-    Component(accountsModels, "Accounts Models", "Django Models", "Modelo User com roles: ADMIN, ORGANIZER, USER. Autenticação por email.")
-    Component(eventsViews, "Events Views", "Django REST Views", "Endpoints de criação, edição, exclusão e listagem de eventos. Aprovação/rejeição por admin.")
-    Component(eventsModels, "Events Models", "Django Models", "Modelo Event com título, descrição, local, data, capacidade e status (PENDING, APPROVED, REJECTED)")
-    Component(registrationsViews, "Registrations Views", "Django REST Views", "Endpoints de inscrição em eventos, visualização de participantes e controle de presença (check-in)")
-    Component(registrationsModels, "Registrations Models", "Django Models", "Modelo Registration com relacionamento user-event, flag de check-in e timestamp")
-    Component(urlRouter, "URL Router", "Django URLs", "Roteamento das requisições para os respectivos views via /api/")
-    Component(authMiddleware, "Autenticação", "Django Auth / DRF Auth", "Gerenciamento de autenticação (login/logout), criptografia de senhas e permissões por role")
+    Component(urlRouter, "URL Router", "Django URLs", "Roteia /api/accounts/, /api/events/ e /api/registrations/ para os respectivos ViewSets")
+    Component(authMiddleware, "JWT Auth + Middleware", "JWTAuthFromCookie / TokenRefreshMiddleware", "Extrai token de cookie HttpOnly; faz refresh automático do access token expirado")
+    Component(exceptionHandler, "Exception Handler", "config/exception_handler.py", "Converte exceções tipadas (ValidationError, PermissionDenied, NotFound, Conflict) em respostas padronizadas { error: { code, message } }")
+
+    Component(accountsViews, "Accounts Views", "DRF ViewSet", "Endpoints de cadastro, login (retorna user + seta cookies JWT), logout e gerenciamento de perfil")
+    Component(accountsService, "Accounts Service", "Python", "Lógica de negócio: criação com validação de senha, atualização restrita por role")
+    Component(accountsModels, "Accounts Models", "Django Models", "User com UUID PK, email como USERNAME_FIELD, roles: ADMIN / ORGANIZER / USER")
+
+    Component(eventsViews, "Events Views", "DRF ViewSet", "Endpoints de CRUD de eventos + ações: approve, reject, resubmit, close. Filtros por status, categoria, organizador e busca full-text.")
+    Component(eventsService, "Events Service", "Python", "Fluxo de status: PENDING → APPROVED/REJECTED → resubmit → closed_at. Valida data futura, restrições de encerramento.")
+    Component(eventsModels, "Events Models", "Django Models", "Event (com rejection_reason e closed_at), Category, SubCategory. Propriedade is_finished.")
+
+    Component(registrationsViews, "Registrations Views", "DRF ViewSet", "Endpoints de inscrição, check-in e cancelamento. Filtros por evento e usuário.")
+    Component(registrationsService, "Registrations Service", "Python", "Valida capacidade, status do evento, check-in por organizador/admin. Bloqueia ações após is_finished.")
+    Component(registrationsModels, "Registrations Models", "Django Models", "Registration com check_in boolean. attendance_status virtual: PRESENT / ABSENT / PENDING.")
 }
 
-ContainerDb(db, "Banco de Dados", "MySQL", "Armazena usuários, eventos e inscrições")
-Container(spa, "Frontend SPA", "React", "Interface do usuário")
+ContainerDb(db, "Banco de Dados", "MySQL 8.0", "Armazena todas as entidades")
+Container(spa, "Frontend SPA", "React 19", "Interface do usuário")
 
-Rel(spa, urlRouter, "Requisições HTTP", "JSON/REST")
+Rel(spa, urlRouter, "Requisições HTTP/JSON com cookies JWT")
+Rel(urlRouter, authMiddleware, "Autentica toda requisição")
 Rel(urlRouter, accountsViews, "Roteia /api/accounts/")
 Rel(urlRouter, eventsViews, "Roteia /api/events/")
 Rel(urlRouter, registrationsViews, "Roteia /api/registrations/")
-Rel(accountsViews, authMiddleware, "Autentica usuários")
-Rel(eventsViews, authMiddleware, "Verifica permissões")
-Rel(registrationsViews, authMiddleware, "Verifica permissões")
-Rel(accountsViews, accountsSerializers, "Serializa/valida dados")
-Rel(accountsSerializers, accountsModels, "Acessa modelo User")
-Rel(eventsViews, eventsModels, "Acessa modelo Event")
-Rel(registrationsViews, registrationsModels, "Acessa modelo Registration")
-Rel(accountsModels, db, "Lê/escreve", "Django ORM")
-Rel(eventsModels, db, "Lê/escreve", "Django ORM")
-Rel(registrationsModels, db, "Lê/escreve", "Django ORM")
+Rel(accountsViews, accountsService, "Delega lógica")
+Rel(eventsViews, eventsService, "Delega lógica")
+Rel(registrationsViews, registrationsService, "Delega lógica")
+Rel(accountsService, accountsModels, "Lê/escreve")
+Rel(eventsService, eventsModels, "Lê/escreve")
+Rel(registrationsService, registrationsModels, "Lê/escreve")
+Rel(accountsViews, exceptionHandler, "Exceções convertidas")
+Rel(eventsViews, exceptionHandler, "Exceções convertidas")
+Rel(registrationsViews, exceptionHandler, "Exceções convertidas")
+Rel(accountsModels, db, "ORM")
+Rel(eventsModels, db, "ORM")
+Rel(registrationsModels, db, "ORM")
 @enduml
 
 @startuml C4_Components_Frontend
@@ -85,25 +94,33 @@ LAYOUT_TOP_DOWN()
 
 title [Nível 3] Diagrama de Componentes - Frontend SPA (React)
 
-Container_Boundary(spa, "Frontend SPA - React + Tailwind CSS") {
-    Component(authPages, "Páginas de Autenticação", "React Components", "Telas de login, cadastro de usuários e logout")
-    Component(eventPages, "Páginas de Eventos", "React Components", "Listagem de eventos disponíveis, criação, edição e exclusão de eventos")
-    Component(registrationPages, "Páginas de Inscrições", "React Components", "Inscrição em eventos, visualização de participantes e controle de presença")
-    Component(apiService, "API Service", "JavaScript", "Camada de comunicação com a API REST do backend. Gerencia requisições HTTP e tratamento de respostas.")
-    Component(authContext, "Auth Context", "React", "Gerenciamento do estado de autenticação do usuário (role, sessão)")
-    Component(router, "Router", "React", "Navegação entre páginas e proteção de rotas por autenticação/role")
+Container_Boundary(spa, "Frontend SPA - React 19 + Tailwind CSS 4") {
+    Component(router, "Router + ProtectedRoute", "React Router 7", "Navegação entre páginas; protege rotas por autenticação e role (ADMIN, ORGANIZER, USER)")
+    Component(authContext, "AuthProvider / useAuth", "React Context + sessionStorage", "Estado global de autenticação: user, login(), logout(). Persiste sessão no sessionStorage.")
+    Component(apiService, "API Service (api.js)", "Axios", "Instância Axios com baseURL=/api e withCredentials=true. Proxy Vite redireciona /api para o backend.")
+
+    Component(publicPages, "Páginas Públicas", "React Components", "Home (destaques e próximos eventos), Eventos (catálogo com busca e filtros), EventoDetalhe")
+    Component(authPages, "Páginas de Autenticação", "React Components", "Login e Cadastro")
+    Component(userPages, "Páginas do Usuário", "React Components", "MinhasInscricoes (histórico + status de presença) e Perfil (editar dados)")
+    Component(organizerPages, "Páginas do Organizador", "React Components", "CreateEvent, EditEvent, EventForm (compartilhado), MyEvents (lista de eventos criados), EventRegistrations (gestão de inscritos, check-in, encerramento)")
+    Component(adminPages, "Páginas Administrativas", "React Components", "AdminDashboard, ManageEvents (aprovar/rejeitar), ManageUsers e ManageCategories")
+    Component(layoutComponents, "Componentes de Layout", "React Components", "Navbar (navegação global) e AdminSidebar (menu lateral do admin)")
 }
 
-Container(api, "API Backend", "Django REST Framework", "API REST")
+Container(api, "API Backend", "Django REST Framework", "API REST em /api/")
 
-Rel(router, authPages, "Roteia para")
-Rel(router, eventPages, "Roteia para")
-Rel(router, registrationPages, "Roteia para")
-Rel(authPages, apiService, "Usa para login/cadastro")
-Rel(eventPages, apiService, "Usa para CRUD de eventos")
-Rel(registrationPages, apiService, "Usa para inscrições/check-in")
+Rel(router, publicPages, "Roteia /  /eventos  /eventos/:id")
+Rel(router, authPages, "Roteia /login  /cadastro")
+Rel(router, userPages, "Roteia /minhas-inscricoes  /perfil")
+Rel(router, organizerPages, "Roteia /eventos/criar  /eventos/:id/editar  /meus-eventos  /eventos/:id/inscritos")
+Rel(router, adminPages, "Roteia /admin  /admin/eventos  /admin/usuarios  /admin/categorias")
+Rel(publicPages, apiService, "Lista e busca eventos")
+Rel(authPages, apiService, "Login e cadastro")
 Rel(authPages, authContext, "Atualiza estado de autenticação")
-Rel(eventPages, authContext, "Verifica permissões do usuário")
-Rel(registrationPages, authContext, "Verifica permissões do usuário")
-Rel(apiService, api, "Consome API REST", "HTTP/JSON")
+Rel(userPages, apiService, "Consulta inscrições e atualiza perfil")
+Rel(organizerPages, apiService, "CRUD de eventos, check-in, encerramento")
+Rel(adminPages, apiService, "Aprovação, rejeição, gestão de usuários e categorias")
+Rel(organizerPages, authContext, "Verifica role ORGANIZER / ADMIN")
+Rel(adminPages, authContext, "Verifica role ADMIN")
+Rel(apiService, api, "HTTP/JSON com cookies JWT")
 @enduml

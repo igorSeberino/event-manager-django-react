@@ -1,118 +1,103 @@
-# 📌 Sistema de Gerenciamento de Eventos Acadêmicos
+# Sistema de Gerenciamento de Eventos Acadêmicos
 
-## 📖 Sobre o Projeto
+## Sobre o Projeto
 
-Este projeto consiste no desenvolvimento de um sistema web para gerenciamento de eventos acadêmicos, como palestras, workshops e minicursos.
-
-O objetivo é centralizar o controle de eventos e inscrições em uma única plataforma, facilitando o gerenciamento das informações e a participação dos usuários.
-
-O sistema permitirá cadastro de usuários, criação de eventos e inscrição de participantes.
+Sistema web para gerenciamento de eventos acadêmicos — palestras, workshops, minicursos, seminários e oficinas. Centraliza o controle de eventos e inscrições em uma única plataforma, com fluxo completo de aprovação, presença e roles de acesso.
 
 ---
 
-## 🎯 Objetivo
+## Funcionalidades
 
-Desenvolver uma aplicação web com frontend e backend separados, utilizando uma API REST para comunicação entre as camadas.
+### Autenticação e Usuários
+
+- Cadastro, login e logout com JWT via cookies HttpOnly
+- Refresh automático do access token por middleware
+- Perfil de usuário editável (nome, email, senha)
+- Roles distintos: **Administrador**, **Organizador** e **Participante**
+- Validação de senha: mínimo 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial
+
+### Eventos
+
+- Criação, edição e exclusão de eventos (organizador ou admin)
+- Categorização por categoria e subcategoria
+- Busca por título, descrição e local; filtros por status, categoria e organizador
+- Fluxo de aprovação completo:
+  - Organizador cria evento → status **PENDENTE**
+  - Admin aprova → **APROVADO** / rejeita com motivo → **REJEITADO**
+  - Organizador reenvia evento rejeitado → volta para **PENDENTE**
+  - Organizador encerra o evento → `closed_at` definido (irreversível)
+- Edição, nova inscrição e check-in bloqueados após encerramento
+
+### Inscrições e Presença
+
+- Inscrição e cancelamento de inscrição em eventos aprovados
+- Controle de capacidade — inscrição bloqueada quando evento está lotado
+- Check-in marcado pelo organizador ou admin durante o evento
+- Status de presença automático após encerramento: **Presente**, **Ausente** ou **Pendente**
+
+### Painel do Organizador
+
+- Lista de eventos criados pelo organizador
+- Gestão de inscritos por evento: lista de participantes, check-in e marcação de faltas
+- Botão de encerrar evento com confirmação
+
+### Painel Administrativo
+
+- Aprovação e rejeição de eventos com motivo
+- Gerenciamento de usuários (criação, edição, exclusão, alteração de role)
+- Gerenciamento de categorias e subcategorias
 
 ---
 
-## ✅ Funcionalidades
-
-- Cadastro de usuários
-- Login e logout
-- Cadastro de eventos
-- Edição e exclusão de eventos
-- Listagem de eventos disponíveis
-- Inscrição em eventos
-- Visualização de participantes inscritos
-- Controle de presença
-
----
-
-## ⚙️ Requisitos Não Funcionais
-
-- Sistema acessível via navegador
-- Interface responsiva
-- API seguindo padrão REST
-- Senhas armazenadas com criptografia
-- Código organizado em camadas
-- Tempo de resposta inferior a 2 segundos em operações comuns
-
----
-
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Backend
 
-**Linguagem e Frameworks:**
-
-- Python — linguagem principal do backend
-- Django — framework web principal
-- Django REST Framework — construção de APIs RESTful
-- django-cors-headers — suporte a CORS para integração frontend-backend
-
-O backend é organizado em **apps separados**, onde cada app representa um domínio do sistema (ex: usuários, eventos, inscrições). Essa abordagem melhora a organização, manutenção e escalabilidade do código.
-
----
+- **Python 3.12** — linguagem principal
+- **Django 6.0** — framework web
+- **Django REST Framework 3.16** — construção da API RESTful
+- **Simple JWT** — autenticação via tokens JWT em cookies HttpOnly
+- **django-filter** — filtros avançados nas listagens
+- **django-cors-headers** — suporte a CORS
+- **python-decouple** — configuração via `.env`
 
 ### Frontend
 
-**Linguagem e Frameworks:**
+- **React 19** — biblioteca de UI
+- **React Router 7** — navegação e rotas protegidas por role
+- **Axios** — cliente HTTP com `withCredentials`
+- **Tailwind CSS 4** — estilização utilitária
+- **Lucide React** — ícones
+- **Vite 7** — bundler e dev server
 
-- React — biblioteca principal para construção da interface
-- React Router DOM — navegação entre páginas
-- Axios — requisições HTTP para a API
-- Lucide React — ícones para a interface
-- Vite — bundler e ambiente de desenvolvimento
-- Tailwind CSS — framework utilitário para estilização rápida e responsiva
+### Infraestrutura
 
-O frontend é responsável pela interface do usuário, navegação, consumo da API REST e gerenciamento de requisições HTTP.
+- **MySQL 8.0** — banco de dados relacional
+- **Docker + Docker Compose** — orquestração dos serviços (db, backend, frontend)
 
----
+### Qualidade de Código
 
-### Ferramentas de Qualidade/Dev
-
-**Padronização, automação e qualidade de código:**
-
-- Black — formatação automática de código Python
-- ESLint — análise estática e padronização de código JavaScript/React
-- Prettier — formatação automática de código JavaScript/React
-- Husky — hooks de git para automação de tarefas
-- lint-staged — executa comandos (linters/formatadores) apenas nos arquivos alterados e staged para commit
+- **Black** — formatação automática Python
+- **ESLint + Prettier** — formatação e análise estática JavaScript/React
+- **Husky + lint-staged** — hooks de pre-commit automáticos
 
 ---
 
-### Banco de Dados
-
-- MySQL — sistema gerenciador de banco de dados relacional
-
----
-
-### Controle de Versão
-
-- Git
-- GitHub
-
----
-
-## 🚀 Como Executar
+## Como Executar
 
 ### Com Docker (recomendado)
 
-Pré-requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução.
+Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução.
 
 ```bash
-# 1. Criar o arquivo de variáveis a partir do modelo
+# 1. Criar o arquivo de variáveis de ambiente
 cp .env.example .env          # Windows PowerShell: Copy-Item .env.example .env
 
-# 2. Construir e subir os containers (db + backend + frontend)
+# 2. Subir todos os serviços (db + backend + frontend)
 docker compose up --build
 
 # 3. Em outro terminal, popular o banco com dados de exemplo
 docker compose exec backend python manage.py populate_db
-
-# 4. (Opcional) Criar um superusuário para o admin do Django
-docker compose exec backend python manage.py createsuperuser
 ```
 
 Acesse:
@@ -121,17 +106,18 @@ Acesse:
 - **API:** http://localhost:8000/api/
 - **Admin Django:** http://localhost:8000/admin/
 
-Usuário admin de teste (após `populate_db`): `admin@eventmanager.com` / `Admin@123`.
+Usuário admin de teste (após `populate_db`): `admin@eventmanager.com` / `Admin@123`
 
-Para parar: `Ctrl + C` e depois `docker compose down` (use `docker compose down -v` para apagar também os dados do banco).
+Para parar: `Ctrl + C` e depois `docker compose down`  
+Para apagar também os dados do banco: `docker compose down -v`
 
-| Ação | Comando |
-| --- | --- |
-| Subir em segundo plano | `docker compose up -d` |
-| Ver logs ao vivo | `docker compose logs -f` |
-| Aplicar migrations | `docker compose exec backend python manage.py migrate` |
-| Lint do frontend | `docker compose exec frontend npm run lint` |
-| Parar e remover containers | `docker compose down` |
+| Ação                       | Comando                                                |
+| -------------------------- | ------------------------------------------------------ |
+| Subir em segundo plano     | `docker compose up -d`                                 |
+| Ver logs ao vivo           | `docker compose logs -f`                               |
+| Aplicar migrations         | `docker compose exec backend python manage.py migrate` |
+| Lint do frontend           | `docker compose exec frontend npm run lint`            |
+| Parar e remover containers | `docker compose down`                                  |
 
 ### Sem Docker (manual)
 
@@ -164,13 +150,11 @@ npm run dev                       # http://localhost:5173 (proxy /api -> :8000)
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
-O sistema segue uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados. A documentação arquitetural utiliza o **modelo C4** para representar o sistema em diferentes níveis de abstração.
+O sistema segue uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados. A documentação arquitetural usa o **modelo C4** para representar o sistema em diferentes níveis de abstração.
 
-Os arquivos de modelagem estão em `./docs/architecture/`:
-
-- `c4-model.puml` - Diagramas C4 em formato PlantUML (edição)
+Arquivos de modelagem em `./docs/architecture/` (formato PlantUML).
 
 ### Nível 1 — Contexto do Sistema
 
@@ -190,79 +174,64 @@ Os arquivos de modelagem estão em `./docs/architecture/`:
 
 ---
 
-## 📊 Modelo de Dados
+## Modelo de Dados
 
-O banco de dados foi modelado seguindo um padrão relacional, com entidades principais para gerenciar usuários, eventos e inscrições:
-
-### Diagrama Entidade-Relacionamento (DER)
+### Diagrama Entidade-Relacionamento
 
 ![Diagrama ER - Modelagem do Banco de Dados](./docs/database/erd.png)
 
-O diagrama ER foi atualizado para refletir o novo modelo de dados, incluindo as entidades de categoria e subcategoria associadas diretamente ao evento.
+Arquivo de modelagem em `./docs/database/erd.puml` (formato PlantUML).
 
-### Entidades Principais
+### Entidades
 
-- **Users**: Armazena informações de usuários com diferentes roles (ADMIN, ORGANIZER, USER)
-- **Events**: Registro de eventos com informações como título, data, local, capacidade, status de aprovação, categoria e subcategoria
-- **Categories**: Representa os cursos ou grandes áreas (ex: Engenharia de Software, Biomedicina)
-- **Subcategories**: Representa áreas específicas do curso (ex: Machine Learning, DNA), vinculadas a uma categoria
-- **Registrations**: Relacionamento entre usuários e eventos, registrando inscrições e presença
-
-Os arquivos de modelagem estão em `./docs/database/`:
-
-- `erd.puml` - Diagrama em formato PlantUML (edição)
-- `erd.png` - Imagem do diagrama
+| Entidade          | Descrição                                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Users**         | Usuários com roles ADMIN, ORGANIZER e USER. Autenticação por email.                                                                  |
+| **Events**        | Eventos com título, data, local, capacidade, status de aprovação, motivo de rejeição, data de encerramento e categoria/subcategoria. |
+| **Categories**    | Grandes áreas temáticas dos eventos (ex: Tecnologia, Saúde).                                                                         |
+| **Subcategories** | Áreas específicas vinculadas a uma categoria (ex: Inteligência Artificial, Cardiologia).                                             |
+| **Registrations** | Inscrição de um usuário em um evento, com flag de check-in e status de presença.                                                     |
 
 ---
 
-## 📋 Organização do Desenvolvimento
-
-O projeto será desenvolvido individualmente, seguindo as etapas:
-
-1. Planejamento e definição de requisitos
-2. Modelagem do banco de dados
-3. Configuração do backend (Django)
-4. Implementação da API REST
-5. Desenvolvimento do frontend em React
-6. Integração frontend ↔ backend
-7. Testes básicos
-8. Documentação
-9. Preparação da apresentação
-
----
-
-## 📂 Estrutura do Repositório
+## Estrutura do Repositório
 
 ```
 event-manager-django-react/
-├── backend/              # API Django REST Framework
+├── backend/
 │   ├── accounts/         # Usuários e autenticação (JWT via cookie)
 │   ├── events/           # Eventos, categorias e subcategorias
 │   ├── registrations/    # Inscrições e check-in
-│   ├── scripts/          # Comandos de gestão (ex.: populate_db)
-│   ├── config/           # Settings, URLs, auth, middleware, exceções
+│   ├── scripts/          # Comandos de gestão (populate_db)
+│   ├── config/           # Settings, URLs, auth, middleware, paginação, exceções
 │   └── Dockerfile
-├── frontend/             # SPA React 19 + Vite + Tailwind CSS
+├── frontend/
 │   ├── src/
+│   │   ├── context/      # AuthContext e AuthProvider
+│   │   ├── pages/        # Páginas (públicas, organizador, admin)
+│   │   ├── components/   # Navbar, AdminSidebar, ProtectedRoute
+│   │   └── services/     # Instância Axios (api.js)
 │   └── Dockerfile
-├── docs/                 # Diagramas C4 e modelo ER
-├── docker-compose.yml    # Orquestra db (MySQL) + backend + frontend
-├── .env.example          # Modelo de variáveis de ambiente
+├── docs/
+│   ├── architecture/     # Diagramas C4 (PlantUML + PNG)
+│   └── database/         # Diagrama ER (PlantUML + PNG)
+├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 
 ---
 
-## 🚀 Possíveis Melhorias Futuras
+## Possíveis Melhorias Futuras
 
-- QR Code para presença
-- Certificados em PDF
-- Dashboard com estatísticas
-- Sistema de permissões (admin/organizador/participante)
+- QR Code para check-in de presença
+- Geração de certificados em PDF
+- Notificações por email (confirmação de inscrição, aprovação de evento)
+- Exportação da lista de presença (CSV/PDF)
 - Deploy em nuvem
 
 ---
 
-## 👨‍💻 Autor
+## Autor
 
 Igor Thiago Seberino
