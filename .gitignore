@@ -22,3 +22,6 @@ dist/
 # OS
 Thumbs.db
 .DS_Store
+
+# Documentação de uso pessoal (não faz parte do projeto)
+DOCKER-GUIA-PESSOAL.md

@@ -95,6 +95,75 @@ O frontend é responsável pela interface do usuário, navegação, consumo da A
 
 ---
 
+## 🚀 Como Executar
+
+### Com Docker (recomendado)
+
+Pré-requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução.
+
+```bash
+# 1. Criar o arquivo de variáveis a partir do modelo
+cp .env.example .env          # Windows PowerShell: Copy-Item .env.example .env
+
+# 2. Construir e subir os containers (db + backend + frontend)
+docker compose up --build
+
+# 3. Em outro terminal, popular o banco com dados de exemplo
+docker compose exec backend python manage.py populate_db
+
+# 4. (Opcional) Criar um superusuário para o admin do Django
+docker compose exec backend python manage.py createsuperuser
+```
+
+Acesse:
+
+- **Frontend:** http://localhost:5173
+- **API:** http://localhost:8000/api/
+- **Admin Django:** http://localhost:8000/admin/
+
+Usuário admin de teste (após `populate_db`): `admin@eventmanager.com` / `Admin@123`.
+
+Para parar: `Ctrl + C` e depois `docker compose down` (use `docker compose down -v` para apagar também os dados do banco).
+
+| Ação | Comando |
+| --- | --- |
+| Subir em segundo plano | `docker compose up -d` |
+| Ver logs ao vivo | `docker compose logs -f` |
+| Aplicar migrations | `docker compose exec backend python manage.py migrate` |
+| Lint do frontend | `docker compose exec frontend npm run lint` |
+| Parar e remover containers | `docker compose down` |
+
+### Sem Docker (manual)
+
+<details>
+<summary><strong>Backend</strong> (Python 3.12 + MySQL)</summary>
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate           # Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+# Configure o .env com um MySQL local (DB_HOST=127.0.0.1)
+python manage.py migrate
+python manage.py populate_db
+python manage.py runserver        # http://localhost:8000
+```
+
+</details>
+
+<details>
+<summary><strong>Frontend</strong> (Node 20+)</summary>
+
+```bash
+cd frontend
+npm install
+npm run dev                       # http://localhost:5173 (proxy /api -> :8000)
+```
+
+</details>
+
+---
+
 ## 🏗️ Arquitetura
 
 O sistema segue uma arquitetura **cliente-servidor baseada em API REST**, com frontend e backend separados. A documentação arquitetural utiliza o **modelo C4** para representar o sistema em diferentes níveis de abstração.
@@ -165,10 +234,21 @@ O projeto será desenvolvido individualmente, seguindo as etapas:
 ## 📂 Estrutura do Repositório
 
 ```
-/projeto-eventos
-  /backend
-  /frontend
-  README.md
+event-manager-django-react/
+├── backend/              # API Django REST Framework
+│   ├── accounts/         # Usuários e autenticação (JWT via cookie)
+│   ├── events/           # Eventos, categorias e subcategorias
+│   ├── registrations/    # Inscrições e check-in
+│   ├── scripts/          # Comandos de gestão (ex.: populate_db)
+│   ├── config/           # Settings, URLs, auth, middleware, exceções
+│   └── Dockerfile
+├── frontend/             # SPA React 19 + Vite + Tailwind CSS
+│   ├── src/
+│   └── Dockerfile
+├── docs/                 # Diagramas C4 e modelo ER
+├── docker-compose.yml    # Orquestra db (MySQL) + backend + frontend
+├── .env.example          # Modelo de variáveis de ambiente
+└── README.md
 ```
 
 ---
