@@ -57,7 +57,7 @@ export default function Home() {
 
   useEffect(() => {
     api
-      .get("/events/")
+      .get("/events/?status=APPROVED&page_size=1000")
       .then((response) => {
         const data = response.data.results || response.data;
         setFeaturedEvents(data);
@@ -310,7 +310,7 @@ export default function Home() {
 
                     <div className="relative z-10 flex-grow">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-[#F0FBFF] bg-[#2E94B9] px-2.5 py-1 rounded-md mb-2 inline-block border-t border-white/20">
-                        {event.category?.name || "Geral"}
+                        {event.category || "Geral"}
                       </span>
                       <h4 className="text-lg font-bold text-[#F0FBFF] leading-snug group-hover:text-[#ACDCEE] transition-colors mb-2">
                         {event.title}

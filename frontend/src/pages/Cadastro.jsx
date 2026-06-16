@@ -40,14 +40,31 @@ export default function Cadastro() {
     setErrorMsg("");
     setSuccessMsg("");
 
-    // Validação simples de senha no front-end
+    // Validação de senha alinhada às regras do backend
     if (formData.password !== formData.confirmPassword) {
       setErrorMsg("As senhas não coincidem.");
       return;
     }
 
-    if (formData.password.length < 6) {
-      setErrorMsg("A senha deve ter pelo menos 6 caracteres.");
+    const pw = formData.password;
+    if (pw.length < 8) {
+      setErrorMsg("A senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+    if (!/[A-Z]/.test(pw)) {
+      setErrorMsg("A senha deve conter pelo menos uma letra maiúscula.");
+      return;
+    }
+    if (!/[a-z]/.test(pw)) {
+      setErrorMsg("A senha deve conter pelo menos uma letra minúscula.");
+      return;
+    }
+    if (!/[0-9]/.test(pw)) {
+      setErrorMsg("A senha deve conter pelo menos um número.");
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(pw)) {
+      setErrorMsg("A senha deve conter pelo menos um caractere especial.");
       return;
     }
 
@@ -67,17 +84,14 @@ export default function Cadastro() {
         navigate("/login");
       }, 2000);
     } catch (error) {
-      if (error.response && error.response.data) {
-        // Tenta capturar a mensagem de erro específica do Django (ex: e-mail já existe)
-        const backendError = Object.values(error.response.data)[0];
-        setErrorMsg(
-          Array.isArray(backendError)
-            ? backendError[0]
-            : "Erro ao criar conta. Verifique os dados.",
-        );
-      } else {
-        setErrorMsg("Erro ao conectar com o servidor.");
-      }
+      // O backend padroniza erros como { error: { code, message, field } }
+      const msg = error.response?.data?.error?.message;
+      setErrorMsg(
+        msg ||
+          (error.response
+            ? "Erro ao criar conta. Verifique os dados."
+            : "Erro ao conectar com o servidor."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -202,7 +216,7 @@ export default function Cadastro() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mín. 8: maiúscula, minúscula, número e símbolo"
                   required
                   className="w-full bg-black/20 border border-white/10 focus:border-[#2E94B9] rounded-xl pl-11 pr-12 py-2.5 text-[#F0FBFF] placeholder-white/30 outline-none transition-all duration-300 shadow-inner"
                 />

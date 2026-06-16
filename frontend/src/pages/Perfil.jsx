@@ -74,10 +74,7 @@ export default function Perfil() {
       });
     } catch (err) {
       const detail =
-        err.response?.data?.detail ||
-        err.response?.data?.email?.[0] ||
-        err.response?.data?.name?.[0] ||
-        "Erro ao atualizar perfil.";
+        err.response?.data?.error?.message || "Erro ao atualizar perfil.";
       setFeedbackMsg({ type: "error", text: detail });
     } finally {
       setSaving(false);
@@ -106,9 +103,7 @@ export default function Perfil() {
       setFeedbackMsg({ type: "success", text: "Senha alterada com sucesso!" });
     } catch (err) {
       const detail =
-        err.response?.data?.detail ||
-        err.response?.data?.password?.[0] ||
-        "Erro ao alterar senha.";
+        err.response?.data?.error?.message || "Erro ao alterar senha.";
       setFeedbackMsg({ type: "error", text: detail });
     } finally {
       setSaving(false);
